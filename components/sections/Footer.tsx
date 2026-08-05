@@ -5,7 +5,7 @@ import { Heart } from "lucide-react";
 
 export default function Footer() {
   return (
-    <footer className="relative px-5 pb-8 pt-8 sm:px-6 sm:pb-12 sm:pt-16">
+    <footer className="relative px-5 pb-10 pt-10 sm:px-6 sm:pb-16 sm:pt-20">
       <motion.div
         initial={{
           opacity: 0,
@@ -25,28 +25,27 @@ export default function Footer() {
         }}
         className="mx-auto max-w-3xl text-center"
       >
-        <div className="mx-auto flex h-11 w-11 items-center justify-center rounded-full border border-white/60 bg-white/40 text-[#a88d5d] shadow-sm backdrop-blur-[3px] sm:h-13 sm:w-13 sm:bg-white/70">
-          <Heart
-            size={19}
-            fill="currentColor"
-          />
-        </div>
+        <Heart
+          size={34}
+          fill="currentColor"
+          className="mx-auto text-[#c9a86a]"
+        />
 
-        <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.36em] text-[#9b7c45] sm:text-xs">
+        <p className="mt-6 text-[10px] font-semibold uppercase tracking-[0.36em] text-[#9b7c45] sm:text-xs">
           Sfântul Botez
         </p>
 
-        <h2 className="mt-3 font-serif text-5xl font-semibold text-[#263746] drop-shadow-[0_2px_10px_rgba(255,255,255,0.8)] sm:mt-5 sm:text-7xl">
+        <h2 className="mt-3 font-serif text-5xl font-semibold text-[#263746] drop-shadow-[0_2px_8px_rgba(255,255,255,0.8)] sm:text-7xl">
           Amir
         </h2>
 
-        <div className="mx-auto mt-5 h-px w-20 bg-gradient-to-r from-transparent via-[#b99a63] to-transparent sm:mt-7 sm:w-24" />
+        <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-[#b99a63] to-transparent" />
 
-        <p className="mt-5 text-sm font-medium text-[#263746] sm:mt-7 sm:text-base">
+        <p className="mt-6 text-base font-medium text-[#263746]">
           2 octombrie 2026
         </p>
 
-        <p className="mt-1 text-sm text-[#56616a]">
+        <p className="mt-1 text-[#56616a]">
           Arad
         </p>
 
@@ -60,7 +59,7 @@ export default function Footer() {
                 block: "start",
               })
           }
-          className="mt-6 appearance-none border-0 bg-transparent text-[10px] font-semibold uppercase tracking-[0.28em] text-[#8d7852] transition hover:text-[#263746] sm:mt-8 sm:text-xs"
+          className="mt-10 appearance-none border-0 bg-transparent text-[11px] font-semibold uppercase tracking-[0.28em] text-[#8d7852] transition hover:text-[#263746]"
         >
           Înapoi la început ↑
         </button>

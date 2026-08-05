@@ -95,9 +95,9 @@ export default function Hero() {
   return (
     <section
       id="hero"
-      className="relative flex min-h-[80svh] items-center justify-center overflow-hidden px-5 pb-10 pt-12 sm:min-h-screen sm:px-6 sm:py-28"
+      className="relative flex min-h-[86svh] items-center justify-center overflow-hidden px-5 pb-10 pt-12 sm:min-h-screen sm:px-6 sm:py-28"
     >
-      {/* Fundal pentru telefon — imaginea nu mai este tăiată pe lateral */}
+      {/* Fundal dedicat pentru telefon */}
       <motion.div
         aria-hidden="true"
         style={{
@@ -105,13 +105,9 @@ export default function Hero() {
           scale: backgroundScale,
           opacity: backgroundOpacity,
           backgroundImage:
-            "url('/images/hero-background.png')",
-          backgroundSize: "105% auto",
-          backgroundPosition: "center top",
-          backgroundRepeat: "no-repeat",
-          backgroundColor: "#fcfaf6",
+            "url('/images/hero-background-mobile.png')",
         }}
-        className="pointer-events-none fixed inset-0 -z-20 sm:hidden"
+        className="pointer-events-none fixed inset-0 -z-20 bg-cover bg-center bg-no-repeat sm:hidden"
       />
 
       {/* Fundal pentru tabletă și desktop */}
@@ -127,10 +123,7 @@ export default function Hero() {
         className="pointer-events-none fixed inset-0 -z-20 hidden bg-cover bg-center bg-no-repeat sm:block"
       />
 
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-white/[0.03] sm:bg-white/10" />
-
-      {/* Lumină discretă în centru pentru lizibilitatea textului */}
-      <div className="pointer-events-none absolute inset-x-0 top-[6%] -z-[5] mx-auto h-[82%] max-w-xl bg-[radial-gradient(ellipse_at_center,rgba(255,253,248,0.70),rgba(255,253,248,0.22)_48%,transparent_76%)] sm:hidden" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-transparent sm:bg-white/10" />
 
       <motion.div
         initial={{

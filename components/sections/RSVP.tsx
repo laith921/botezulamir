@@ -25,13 +25,13 @@ type SupabaseError = {
 };
 
 const celebrationParticles = [
-  { left: "8%", delay: 0, symbol: "✦" },
-  { left: "20%", delay: 0.15, symbol: "•" },
-  { left: "34%", delay: 0.3, symbol: "✧" },
-  { left: "49%", delay: 0.08, symbol: "•" },
-  { left: "64%", delay: 0.24, symbol: "✦" },
-  { left: "78%", delay: 0.12, symbol: "•" },
-  { left: "91%", delay: 0.36, symbol: "✧" },
+  { left: "10%", delay: 0, symbol: "✦" },
+  { left: "24%", delay: 0.14, symbol: "•" },
+  { left: "39%", delay: 0.28, symbol: "✧" },
+  { left: "53%", delay: 0.08, symbol: "•" },
+  { left: "68%", delay: 0.22, symbol: "✦" },
+  { left: "82%", delay: 0.12, symbol: "•" },
+  { left: "92%", delay: 0.34, symbol: "✧" },
 ];
 
 function getReadableError(error: SupabaseError) {
@@ -196,7 +196,7 @@ export default function RSVP() {
   }
 
   const inputClass =
-    "w-full appearance-none rounded-[18px] border border-white/65 bg-white/72 px-4 py-3.5 text-[16px] text-[#263746] shadow-sm outline-none backdrop-blur-[4px] transition placeholder:text-slate-400 focus:border-[#b99a63] focus:bg-white/90 focus:ring-2 focus:ring-[#b99a63]/15 sm:rounded-2xl sm:px-5 sm:py-4";
+    "w-full appearance-none border-0 border-b border-[#b99a63]/55 bg-transparent px-1 py-3 text-[16px] text-[#263746] outline-none transition placeholder:text-[#7b858d] focus:border-[#8d6f3e] focus:ring-0";
 
   const personalizedGreeting =
     guest?.greeting?.trim() ||
@@ -205,7 +205,7 @@ export default function RSVP() {
   return (
     <section
       id="rsvp"
-      className="relative px-5 py-12 sm:px-6 sm:py-24"
+      className="relative px-5 py-14 sm:px-6 sm:py-24"
     >
       <motion.div
         initial={{ opacity: 0, y: 22 }}
@@ -215,7 +215,7 @@ export default function RSVP() {
           duration: 0.8,
           ease: [0.22, 1, 0.36, 1],
         }}
-        className="mx-auto max-w-2xl rounded-[28px] border border-white/55 bg-white/48 p-5 shadow-[0_20px_65px_rgba(38,55,70,0.09)] backdrop-blur-[5px] sm:rounded-[42px] sm:bg-[#fffdf9]/85 sm:p-12 sm:backdrop-blur-md"
+        className="mx-auto max-w-2xl"
       >
         <div className="text-center">
           <p className="text-[10px] font-semibold uppercase tracking-[0.36em] text-[#9b7c45] sm:text-sm">
@@ -244,7 +244,7 @@ export default function RSVP() {
         </div>
 
         {sent ? (
-          <div className="relative mt-8 overflow-hidden rounded-[26px] border border-white/65 bg-white/65 px-5 py-10 text-center shadow-sm backdrop-blur sm:mt-12 sm:rounded-[30px] sm:p-10">
+          <div className="relative mt-10 overflow-hidden px-3 py-10 text-center sm:mt-14">
             {celebrationParticles.map(
               ({ left, delay, symbol }, index) => (
                 <motion.span
@@ -256,7 +256,7 @@ export default function RSVP() {
                     rotate: 0,
                   }}
                   animate={{
-                    y: -150,
+                    y: -145,
                     opacity: [0, 1, 1, 0],
                     rotate: 180,
                   }}
@@ -280,16 +280,16 @@ export default function RSVP() {
                 duration: 0.55,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-[#d8c5a0] bg-[#fffaf2] text-[#a88d5d]"
+              className="mx-auto flex h-14 w-14 items-center justify-center text-[#a88d5d]"
             >
-              <Heart size={27} fill="currentColor" />
+              <Heart size={31} fill="currentColor" />
             </motion.div>
 
-            <h3 className="mt-6 font-serif text-3xl text-[#263746] sm:text-4xl">
+            <h3 className="mt-5 font-serif text-3xl text-[#263746] sm:text-4xl">
               Vă mulțumim!
             </h3>
 
-            <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-slate-600 sm:text-base">
+            <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-[#56616a] sm:text-base">
               {guest
                 ? `Confirmarea pentru ${guest.display_name} a fost înregistrată.`
                 : "Confirmarea dumneavoastră a fost înregistrată."}
@@ -317,15 +317,15 @@ export default function RSVP() {
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="mt-8 space-y-4 sm:mt-12 sm:space-y-6"
+            className="mt-10 space-y-6 sm:mt-14 sm:space-y-8"
           >
             {guest ? (
               <div>
-                <label className="mb-2 block text-sm font-medium text-[#56616a]">
+                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]">
                   Invitația pentru
                 </label>
 
-                <div className="rounded-[18px] border border-white/65 bg-white/65 px-4 py-3.5 font-semibold text-[#263746] shadow-sm backdrop-blur sm:rounded-2xl sm:px-5 sm:py-4">
+                <div className="border-b border-[#b99a63]/55 px-1 py-3 font-semibold text-[#263746]">
                   {guest.display_name}
                 </div>
               </div>
@@ -333,7 +333,7 @@ export default function RSVP() {
               <div>
                 <label
                   htmlFor="name"
-                  className="mb-2 block text-sm font-medium text-[#56616a]"
+                  className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
                 >
                   Nume și prenume
                 </label>
@@ -352,7 +352,7 @@ export default function RSVP() {
             <div>
               <label
                 htmlFor="phone"
-                className="mb-2 block text-sm font-medium text-[#56616a]"
+                className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
               >
                 Telefon
               </label>
@@ -371,7 +371,7 @@ export default function RSVP() {
             <div>
               <label
                 htmlFor="attendance"
-                className="mb-2 block text-sm font-medium text-[#56616a]"
+                className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
               >
                 Participare
               </label>
@@ -381,7 +381,7 @@ export default function RSVP() {
                   id="attendance"
                   name="attendance"
                   defaultValue="yes"
-                  className={`${inputClass} cursor-pointer pr-11`}
+                  className={`${inputClass} cursor-pointer pr-10`}
                   style={{ colorScheme: "light" }}
                 >
                   <option value="yes">
@@ -396,16 +396,16 @@ export default function RSVP() {
                 <ChevronDown
                   size={18}
                   aria-hidden="true"
-                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-[#a88d5d]"
+                  className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-[#a88d5d]"
                 />
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3 sm:gap-6">
+            <div className="grid grid-cols-2 gap-5 sm:gap-8">
               <div>
                 <label
                   htmlFor="adults"
-                  className="mb-2 block text-sm font-medium text-[#56616a]"
+                  className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
                 >
                   Adulți
                 </label>
@@ -425,7 +425,7 @@ export default function RSVP() {
               <div>
                 <label
                   htmlFor="children"
-                  className="mb-2 block text-sm font-medium text-[#56616a]"
+                  className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
                 >
                   Copii
                 </label>
@@ -446,7 +446,7 @@ export default function RSVP() {
             <div>
               <label
                 htmlFor="allergies"
-                className="mb-2 block text-sm font-medium text-[#56616a]"
+                className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
               >
                 Observații
               </label>
@@ -461,7 +461,7 @@ export default function RSVP() {
             </div>
 
             {error && (
-              <div className="flex items-start gap-3 rounded-[18px] border border-red-200 bg-red-50/90 px-4 py-3 text-sm text-red-700">
+              <div className="flex items-start gap-3 border-l-2 border-red-400 px-3 py-2 text-sm text-red-700">
                 <AlertCircle
                   size={18}
                   className="mt-0.5 shrink-0"
@@ -474,14 +474,14 @@ export default function RSVP() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full appearance-none rounded-full border border-[#c9a86a] bg-[#e8d5ae] px-7 py-3.5 font-semibold text-[#263746] shadow-[0_14px_34px_rgba(201,168,106,0.24)] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:px-8 sm:py-4 sm:hover:bg-[#dcc18d]"
+              className="mx-auto block w-full appearance-none rounded-full border border-[#c9a86a] bg-[#e8d5ae] px-7 py-3.5 font-semibold text-[#263746] shadow-[0_12px_30px_rgba(201,168,106,0.20)] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:max-w-sm sm:px-8 sm:py-4 sm:hover:bg-[#dcc18d]"
             >
               {loading
                 ? "Se trimite..."
                 : "Trimite confirmarea"}
             </button>
 
-            <p className="text-center text-[11px] leading-5 text-slate-500 sm:text-sm sm:leading-6">
+            <p className="text-center text-[11px] leading-5 text-[#6f7880] sm:text-sm sm:leading-6">
               Dacă intervin modificări, vă rugăm să ne
               contactați telefonic.
             </p>
