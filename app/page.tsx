@@ -5,11 +5,8 @@ import OpeningAnimation from "@/components/layout/OpeningAnimation";
 import Countdown from "@/components/sections/Countdown";
 import Event from "@/components/sections/Event";
 import Footer from "@/components/sections/Footer";
-import Gallery from "@/components/sections/Gallery";
 import Hero from "@/components/sections/Hero";
-import Locations from "@/components/sections/Locations";
 import RSVP from "@/components/sections/RSVP";
-import Story from "@/components/sections/Story";
 
 export default function Home() {
   return (
@@ -19,11 +16,8 @@ export default function Home() {
       <MusicPlayer />
 
       <Hero />
-      <Story />
       <Event />
       <Countdown />
-      <Gallery />
-      <Locations />
       <RSVP />
       <Footer />
     </main>

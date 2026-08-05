@@ -32,13 +32,13 @@ export default function OpeningAnimation() {
   const showCard = stage === "card" || stage === "done";
 
   const balloonY =
-  stage === "descending"
-    ? "-34vh"
-    : stage === "arrived"
-      ? "-12vh"
-      : stage === "opening"
-        ? "-32vh"
-        : "-44vh";
+    stage === "descending"
+      ? "-34vh"
+      : stage === "arrived"
+        ? "-12vh"
+        : stage === "opening"
+          ? "-32vh"
+          : "-44vh";
 
   const balloonScale =
     stage === "card" || stage === "done" ? 0.7 : 1;
@@ -52,39 +52,91 @@ export default function OpeningAnimation() {
           transition={{ duration: 0.9 }}
           className="fixed inset-0 z-[100] overflow-hidden bg-[#f7f1e8]"
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.98),transparent_50%),radial-gradient(circle_at_bottom,rgba(211,184,136,0.16),transparent_48%)]" />
+          {/* FUNDALUL REAL */}
+          <motion.div
+            initial={{ scale: 1.03 }}
+            animate={{ scale: [1.03, 1.07, 1.03] }}
+            transition={{
+              duration: 18,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="absolute inset-0 z-0"
+          >
+            <Image
+              src="/images/hero-background.png"
+              alt=""
+              fill
+              priority
+              sizes="100vw"
+              className="object-cover object-center"
+            />
+          </motion.div>
 
+          {/* STRAT FOARTE DISCRET PENTRU LIZIBILITATE */}
           <motion.div
             aria-hidden="true"
-            animate={{ opacity: [0.2, 0.65, 0.2], scale: [1, 1.25, 1] }}
-            transition={{ duration: 3.5, repeat: Infinity }}
-            className="absolute left-[12%] top-[18%] h-2 w-2 rounded-full bg-[#d4b16f]"
+            animate={{
+              opacity:
+                stage === "done"
+                  ? 0.04
+                  : stage === "card"
+                    ? 0.07
+                    : 0.11,
+            }}
+            transition={{ duration: 1 }}
+            className="absolute inset-0 z-10 bg-white"
+          />
+
+          <div className="absolute inset-0 z-10 bg-[radial-gradient(circle_at_center,rgba(255,255,255,0.08),transparent_52%)]" />
+
+          {/* PARTICULE */}
+          <motion.div
+            aria-hidden="true"
+            animate={{
+              opacity: [0.2, 0.65, 0.2],
+              scale: [1, 1.25, 1],
+            }}
+            transition={{
+              duration: 3.5,
+              repeat: Infinity,
+            }}
+            className="absolute left-[12%] top-[18%] z-20 h-2 w-2 rounded-full bg-[#d4b16f]"
           />
 
           <motion.div
             aria-hidden="true"
-            animate={{ opacity: [0.15, 0.55, 0.15], scale: [1, 1.2, 1] }}
+            animate={{
+              opacity: [0.15, 0.55, 0.15],
+              scale: [1, 1.2, 1],
+            }}
             transition={{
               duration: 4.2,
               repeat: Infinity,
               delay: 0.8,
             }}
-            className="absolute right-[15%] top-[25%] h-1.5 w-1.5 rounded-full bg-[#b9cbd4]"
+            className="absolute right-[15%] top-[25%] z-20 h-1.5 w-1.5 rounded-full bg-[#b9cbd4]"
           />
 
           <motion.div
             aria-hidden="true"
-            animate={{ opacity: [0.15, 0.5, 0.15] }}
+            animate={{
+              opacity: [0.15, 0.5, 0.15],
+            }}
             transition={{
               duration: 4.8,
               repeat: Infinity,
               delay: 1.2,
             }}
-            className="absolute bottom-[22%] left-[19%] h-1.5 w-1.5 rounded-full bg-[#d4b16f]"
+            className="absolute bottom-[22%] left-[19%] z-20 h-1.5 w-1.5 rounded-full bg-[#d4b16f]"
           />
 
+          {/* URSULEȚUL CU BALON */}
           <motion.div
-            initial={{ y: "-75vh", opacity: 0 }}
+            initial={{
+              y: "-75vh",
+              opacity: 0,
+            }}
             animate={{
               y: balloonY,
               opacity: 1,
@@ -121,6 +173,7 @@ export default function OpeningAnimation() {
             />
           </motion.div>
 
+          {/* PLICUL */}
           <motion.div
             initial={{
               opacity: 0,
@@ -136,7 +189,7 @@ export default function OpeningAnimation() {
               duration: 0.9,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="absolute left-1/2 top-[38%] z-20 w-[250px] -translate-x-1/2 sm:w-[330px] md:w-[380px]"
+            className="absolute left-1/2 top-[38%] z-30 w-[250px] -translate-x-1/2 sm:w-[330px] md:w-[380px]"
           >
             <AnimatePresence mode="wait">
               {!showOpenEnvelope ? (
@@ -173,7 +226,9 @@ export default function OpeningAnimation() {
                     duration: 0.75,
                     ease: [0.22, 1, 0.36, 1],
                   }}
-                  style={{ transformPerspective: 1000 }}
+                  style={{
+                    transformPerspective: 1000,
+                  }}
                 >
                   <Image
                     src="/opening/envelope-open.png"
@@ -188,6 +243,7 @@ export default function OpeningAnimation() {
             </AnimatePresence>
           </motion.div>
 
+          {/* INVITAȚIA */}
           <motion.div
             initial={{
               y: 180,
@@ -203,7 +259,7 @@ export default function OpeningAnimation() {
               duration: 1.35,
               ease: [0.22, 1, 0.36, 1],
             }}
-            className="absolute left-1/2 top-[38%] z-30 w-[200px] -translate-x-1/2 sm:w-[255px] md:w-[290px]"
+            className="absolute left-1/2 top-[38%] z-[35] w-[200px] -translate-x-1/2 sm:w-[255px] md:w-[290px]"
           >
             <Image
               src="/opening/invitation-card.png"
@@ -215,16 +271,23 @@ export default function OpeningAnimation() {
             />
           </motion.div>
 
+          {/* BUTON */}
           <motion.button
             type="button"
             onClick={() => setVisible(false)}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{
+              opacity: 0,
+              y: 10,
+            }}
             animate={{
               opacity: stage === "done" ? 1 : 0,
               y: stage === "done" ? 0 : 10,
+              pointerEvents: stage === "done" ? "auto" : "none",
             }}
-            transition={{ duration: 0.55 }}
-            className="absolute bottom-10 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full border border-[#d8c7a4] bg-white/85 px-6 py-3 text-[11px] font-semibold uppercase tracking-[0.26em] text-[#8d7852] shadow-sm backdrop-blur transition hover:bg-white"
+            transition={{
+              duration: 0.55,
+            }}
+            className="absolute bottom-8 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full border border-[#d8c7a4] bg-white/90 px-6 py-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#8d7852] shadow-[0_12px_35px_rgba(38,55,70,0.12)] backdrop-blur transition hover:bg-white sm:bottom-10 sm:text-[11px] sm:tracking-[0.26em]"
           >
             Intră în invitație
           </motion.button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { Check } from "lucide-react";
+import { Check, ChevronDown } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 type GuestData = {
@@ -58,7 +58,9 @@ export default function RSVP() {
     const payload = {
       guest_id: guest?.id ?? null,
       guest_slug: guest?.slug ?? null,
-      name: guest?.display_name || String(form.get("name") ?? "").trim(),
+      name:
+        guest?.display_name ||
+        String(form.get("name") ?? "").trim(),
       phone: String(form.get("phone") ?? "").trim(),
       attendance: String(form.get("attendance") ?? "yes"),
       adults: Number(form.get("adults") ?? 1),
@@ -73,7 +75,9 @@ export default function RSVP() {
     setLoading(false);
 
     if (insertError) {
-      setError("A apărut o eroare. Vă rugăm să încercați din nou.");
+      setError(
+        "A apărut o eroare. Vă rugăm să încercați din nou.",
+      );
       return;
     }
 
@@ -82,34 +86,34 @@ export default function RSVP() {
   }
 
   const inputClass =
-    "w-full rounded-2xl border border-white/80 bg-white/80 px-5 py-4 text-[#263746] shadow-sm outline-none backdrop-blur transition placeholder:text-slate-400 focus:border-[#a88d5d] focus:ring-2 focus:ring-[#a88d5d]/10";
+    "w-full appearance-none rounded-2xl border border-[#e7ddcc] bg-[#fffdf9] px-5 py-4 text-[#263746] shadow-sm outline-none transition placeholder:text-slate-400 focus:border-[#b99a63] focus:ring-2 focus:ring-[#b99a63]/15";
 
   return (
     <section
       id="rsvp"
-      className="relative px-6 py-24 sm:py-32"
+      className="relative px-5 py-20 sm:px-6 sm:py-32"
     >
       <div className="mx-auto max-w-3xl">
-        <div className="rounded-[42px] border border-white/70 bg-white/78 p-8 shadow-[0_28px_90px_rgba(38,55,70,0.10)] backdrop-blur-md sm:p-12">
+        <div className="rounded-[34px] border border-white/75 bg-[#fffdf9]/85 p-6 shadow-[0_28px_90px_rgba(38,55,70,0.10)] backdrop-blur-md sm:rounded-[42px] sm:p-12">
           <div className="text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.45em] text-[#a88d5d] sm:text-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.42em] text-[#a88d5d] sm:text-sm">
               RSVP
             </p>
 
-            <h2 className="mt-6 font-serif text-4xl text-[#263746] sm:text-5xl">
+            <h2 className="mt-6 font-serif text-3xl leading-tight text-[#263746] sm:text-5xl">
               Vă rugăm să confirmați prezența
             </h2>
 
             <div className="mx-auto mt-7 h-px w-24 bg-[#b99a63]" />
 
             {!loadingGuest && guest && (
-              <p className="mt-7 font-serif text-2xl italic text-[#8d7852]">
+              <p className="mt-7 font-serif text-xl italic text-[#8d7852] sm:text-2xl">
                 {guest.greeting?.trim() ||
                   `Dragă ${guest.display_name},`}
               </p>
             )}
 
-            <p className="mt-6 leading-8 text-slate-700">
+            <p className="mt-6 text-sm leading-7 text-slate-700 sm:text-base sm:leading-8">
               Ne-ar face o mare bucurie să ne fiți alături.
               <br />
               Vă rugăm să confirmați până la{" "}
@@ -120,7 +124,7 @@ export default function RSVP() {
           </div>
 
           {sent ? (
-            <div className="mt-12 rounded-[30px] border border-white/80 bg-white/75 p-10 text-center shadow-sm backdrop-blur">
+            <div className="mt-10 rounded-[28px] border border-[#e7ddcc] bg-[#faf6ee] p-8 text-center shadow-sm sm:mt-12 sm:p-10">
               <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-[#d8c5a0] bg-white text-[#a88d5d]">
                 <Check size={28} />
               </div>
@@ -135,20 +139,20 @@ export default function RSVP() {
 
               <a
                 href="#hero"
-                className="mt-8 inline-flex rounded-full border border-[#263746] bg-white px-7 py-3 font-semibold text-[#263746] transition hover:bg-[#263746] hover:text-white"
+                className="mt-8 inline-flex rounded-full border border-[#b99a63] bg-[#f2e6cc] px-7 py-3 font-semibold text-[#263746] transition hover:bg-[#e8d5ae]"
               >
                 Înapoi la invitație
               </a>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="mt-12 space-y-6">
+            <form onSubmit={handleSubmit} className="mt-10 space-y-5 sm:mt-12 sm:space-y-6">
               {guest ? (
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
                     Invitația pentru
                   </label>
 
-                  <div className="rounded-2xl border border-[#e5dccb] bg-white/75 px-5 py-4 font-semibold text-[#263746] shadow-sm">
+                  <div className="rounded-2xl border border-[#e7ddcc] bg-[#faf6ee] px-5 py-4 font-semibold text-[#263746] shadow-sm">
                     {guest.display_name}
                   </div>
                 </div>
@@ -196,18 +200,32 @@ export default function RSVP() {
                   Participare
                 </label>
 
-                <select
-                  id="attendance"
-                  name="attendance"
-                  defaultValue="yes"
-                  className={inputClass}
-                >
-                  <option value="yes">Participăm cu drag</option>
-                  <option value="no">Nu putem participa</option>
-                </select>
+                <div className="relative">
+                  <select
+                    id="attendance"
+                    name="attendance"
+                    defaultValue="yes"
+                    className={`${inputClass} cursor-pointer pr-12`}
+                    style={{ colorScheme: "light" }}
+                  >
+                    <option value="yes">
+                      Participăm cu drag
+                    </option>
+
+                    <option value="no">
+                      Nu putem participa
+                    </option>
+                  </select>
+
+                  <ChevronDown
+                    size={19}
+                    aria-hidden="true"
+                    className="pointer-events-none absolute right-5 top-1/2 -translate-y-1/2 text-[#a88d5d]"
+                  />
+                </div>
               </div>
 
-              <div className="grid gap-6 sm:grid-cols-2">
+              <div className="grid gap-5 sm:grid-cols-2 sm:gap-6">
                 <div>
                   <label
                     htmlFor="adults"
@@ -223,6 +241,7 @@ export default function RSVP() {
                     defaultValue="1"
                     type="number"
                     name="adults"
+                    inputMode="numeric"
                     className={inputClass}
                   />
                 </div>
@@ -242,6 +261,7 @@ export default function RSVP() {
                     defaultValue="0"
                     type="number"
                     name="children"
+                    inputMode="numeric"
                     className={inputClass}
                   />
                 </div>
@@ -273,14 +293,17 @@ export default function RSVP() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-full bg-[#263746] px-8 py-4 font-semibold text-white shadow-[0_16px_40px_rgba(38,55,70,0.20)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#1d2a35] disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full appearance-none rounded-full border border-[#b99a63] bg-[#e8d5ae] px-8 py-4 font-semibold text-[#263746] shadow-[0_16px_40px_rgba(154,126,77,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#dcc18d] disabled:cursor-not-allowed disabled:opacity-60"
+                style={{ colorScheme: "light" }}
               >
-                {loading ? "Se trimite..." : "Confirmă prezența"}
+                {loading
+                  ? "Se trimite..."
+                  : "Confirmă prezența"}
               </button>
 
-              <p className="text-center text-sm leading-6 text-slate-500">
-                Dacă intervin modificări după confirmare, vă rugăm să ne
-                contactați telefonic.
+              <p className="text-center text-xs leading-6 text-slate-500 sm:text-sm">
+                Dacă intervin modificări după confirmare, vă
+                rugăm să ne contactați telefonic.
               </p>
             </form>
           )}

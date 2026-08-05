@@ -33,7 +33,6 @@ h3,
 }
 
 a {
-  color: inherit;
   text-decoration: none;
 }
 
@@ -42,6 +41,23 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+button {
+  color: inherit;
+}
+
+.hero-confirm-button {
+  background-color: #263746 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border-color: #263746 !important;
+}
+
+.hero-confirm-button:hover {
+  background-color: #1d2a35 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 ::selection {
