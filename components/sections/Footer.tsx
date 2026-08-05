@@ -1,21 +1,35 @@
+"use client";
+
+import { motion } from "motion/react";
+
 export default function Footer() {
   return (
-    <footer className="bg-slate-900 px-6 py-16 text-center text-white">
-      <div className="mx-auto max-w-4xl">
-        <div className="text-6xl">🧸</div>
+    <footer className="relative overflow-hidden bg-[#263746] px-6 py-20 text-white">
+      <motion.div
+        initial={{ opacity: 0, y: 25 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8 }}
+        className="mx-auto max-w-4xl text-center"
+      >
+        <p className="text-xs uppercase tracking-[0.45em] text-[#d8c7a4]">
+          Sfântul Botez
+        </p>
 
-        <h2 className="mt-8 font-serif text-4xl">
-          Vă așteptăm cu drag!
+        <h2 className="mt-8 font-serif text-6xl">
+          Amir
         </h2>
 
-        <p className="mx-auto mt-5 max-w-2xl leading-8 text-slate-300">
-          Prezența dumneavoastră va face această zi și mai frumoasă pentru noi.
+        <div className="mx-auto mt-8 h-px w-20 bg-[#d8c7a4]" />
+
+        <p className="mt-8 text-lg text-slate-300">
+          2 octombrie 2026
         </p>
 
-        <p className="mt-10 text-sm tracking-[0.25em] text-slate-400">
-          BOTEZUL LUI AMIR • 2 OCTOMBRIE 2026
+        <p className="mt-3 text-slate-400">
+          Arad
         </p>
-      </div>
+      </motion.div>
     </footer>
   );
 }

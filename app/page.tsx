@@ -4,7 +4,6 @@ import OpeningAnimation from "@/components/layout/OpeningAnimation";
 
 import Countdown from "@/components/sections/Countdown";
 import Event from "@/components/sections/Event";
-import Family from "@/components/sections/Family";
 import Footer from "@/components/sections/Footer";
 import Gallery from "@/components/sections/Gallery";
 import Hero from "@/components/sections/Hero";
@@ -25,7 +24,6 @@ export default function Home() {
       <Countdown />
       <Gallery />
       <Locations />
-      <Family />
       <RSVP />
       <Footer />
     </main>

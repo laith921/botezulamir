@@ -2,46 +2,56 @@
 
 import { motion } from "motion/react";
 
-const illustrations = [
-  { emoji: "🧸", title: "Ursulețul lui Amir" },
-  { emoji: "🎈", title: "Balonul cu aer cald" },
-  { emoji: "☁️", title: "Printre nori" },
-];
-
 export default function Gallery() {
   return (
-    <section id="galerie" className="bg-white px-6 py-28">
-      <div className="mx-auto max-w-6xl">
-        <div className="text-center">
-          <p className="text-sm font-semibold uppercase tracking-[0.35em] text-sky-600">
-            O lume de poveste
-          </p>
+    <section
+      id="galerie"
+      className="relative overflow-hidden bg-[#f7f4ee] px-6 py-24 sm:py-32"
+    >
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#d8c7a4]/60 to-transparent" />
 
-          <h2 className="mt-6 font-serif text-4xl text-slate-800 sm:text-5xl">
-            Pentru micul nostru Amir
-          </h2>
+      <motion.div
+        initial={{ opacity: 0, y: 26 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.9 }}
+        className="mx-auto max-w-4xl text-center"
+      >
+        <p className="text-xs font-semibold uppercase tracking-[0.45em] text-[#a88d5d] sm:text-sm">
+          O zi de neuitat
+        </p>
+
+        <h2 className="mt-7 text-4xl font-semibold leading-tight text-[#263746] sm:text-6xl">
+          Cu drag, pentru Amir
+        </h2>
+
+        <div className="mx-auto mt-8 h-px w-24 bg-[#b99a63]" />
+
+        <p className="mx-auto mt-8 max-w-2xl text-lg leading-9 text-slate-600">
+          Ne dorim ca această zi să rămână o amintire frumoasă, plină de
+          emoție, lumină și oameni dragi.
+        </p>
+
+        <div className="mx-auto mt-12 grid max-w-3xl gap-5 sm:grid-cols-3">
+          <div className="rounded-[28px] border border-[#e8dfd0] bg-white/75 px-6 py-10 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#a88d5d]">
+              Credință
+            </p>
+          </div>
+
+          <div className="rounded-[28px] border border-[#e8dfd0] bg-white/75 px-6 py-10 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#a88d5d]">
+              Familie
+            </p>
+          </div>
+
+          <div className="rounded-[28px] border border-[#e8dfd0] bg-white/75 px-6 py-10 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#a88d5d]">
+              Bucurie
+            </p>
+          </div>
         </div>
-
-        <div className="mt-16 grid gap-7 md:grid-cols-3">
-          {illustrations.map((item, index) => (
-            <motion.div
-              key={item.title}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.12 }}
-              whileHover={{ y: -8 }}
-              className="flex min-h-72 flex-col items-center justify-center rounded-[36px] bg-[#fbf8f2] p-8 text-center shadow-sm"
-            >
-              <div className="text-8xl">{item.emoji}</div>
-
-              <h3 className="mt-8 text-xl font-semibold text-slate-700">
-                {item.title}
-              </h3>
-            </motion.div>
-          ))}
-        </div>
-      </div>
+      </motion.div>
     </section>
   );
 }

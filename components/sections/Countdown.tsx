@@ -1,66 +1,101 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "motion/react";
 
-const eventDate = new Date("2026-10-02T16:00:00");
+const eventDate = new Date("2026-10-02T16:00:00+03:00").getTime();
 
-function calculateTime() {
-  const difference = eventDate.getTime() - Date.now();
+type TimeLeft = {
+  days: number;
+  hours: number;
+  minutes: number;
+  seconds: number;
+};
 
-  if (difference <= 0) {
-    return { days: 0, hours: 0, minutes: 0, seconds: 0 };
-  }
+function calculateTimeLeft(): TimeLeft {
+  const difference = Math.max(eventDate - Date.now(), 0);
 
   return {
-    days: Math.floor(difference / 86400000),
-    hours: Math.floor((difference / 3600000) % 24),
-    minutes: Math.floor((difference / 60000) % 60),
+    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    hours: Math.floor(
+      (difference / (1000 * 60 * 60)) % 24,
+    ),
+    minutes: Math.floor(
+      (difference / (1000 * 60)) % 60,
+    ),
     seconds: Math.floor((difference / 1000) % 60),
   };
 }
 
+const labels = [
+  { key: "days", label: "Zile" },
+  { key: "hours", label: "Ore" },
+  { key: "minutes", label: "Minute" },
+  { key: "seconds", label: "Secunde" },
+] as const;
+
 export default function Countdown() {
-  const [time, setTime] = useState(calculateTime());
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>(
+    calculateTimeLeft(),
+  );
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setTime(calculateTime());
+    const timer = window.setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
     }, 1000);
 
-    return () => clearInterval(timer);
+    return () => window.clearInterval(timer);
   }, []);
 
-  const values = [
-    ["Zile", time.days],
-    ["Ore", time.hours],
-    ["Minute", time.minutes],
-    ["Secunde", time.seconds],
-  ];
-
   return (
-    <section className="bg-[#fbf8f2] px-6 py-24">
-      <div className="mx-auto max-w-4xl text-center">
-        <p className="text-sm font-semibold uppercase tracking-[0.35em] text-sky-600">
+    <section
+      id="countdown"
+      className="relative px-6 py-24 sm:py-32"
+    >
+      <motion.div
+        initial={{ opacity: 0, y: 28 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.25 }}
+        transition={{ duration: 0.9 }}
+        className="mx-auto max-w-5xl rounded-[42px] border border-white/70 bg-white/78 px-7 py-14 text-center shadow-[0_28px_90px_rgba(38,55,70,0.10)] backdrop-blur-md sm:px-12 sm:py-20"
+      >
+        <p className="text-xs font-semibold uppercase tracking-[0.45em] text-[#a88d5d] sm:text-sm">
           Până la ziua cea mare
         </p>
 
-        <div className="mt-12 grid grid-cols-2 gap-5 sm:grid-cols-4">
-          {values.map(([label, value]) => (
-            <div
-              key={String(label)}
-              className="rounded-[28px] bg-white px-4 py-7 shadow-sm"
-            >
-              <p className="text-4xl font-semibold text-slate-800">
-                {String(value).padStart(2, "0")}
-              </p>
+        <h2 className="mt-7 text-4xl font-semibold leading-tight text-[#263746] sm:text-6xl">
+          Numărăm clipele împreună
+        </h2>
 
-              <p className="mt-3 text-sm uppercase tracking-wider text-slate-500">
+        <div className="mx-auto mt-8 h-px w-24 bg-[#b99a63]" />
+
+        <div className="mt-14 grid grid-cols-2 gap-4 sm:grid-cols-4 sm:gap-6">
+          {labels.map(({ key, label }) => (
+            <div
+              key={key}
+              className="rounded-[28px] border border-white/80 bg-white/75 px-4 py-7 shadow-sm backdrop-blur sm:px-6 sm:py-9"
+            >
+              <motion.p
+                key={timeLeft[key]}
+                initial={{ opacity: 0.4, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
+                className="text-4xl font-semibold tabular-nums text-[#263746] sm:text-5xl"
+              >
+                {String(timeLeft[key]).padStart(2, "0")}
+              </motion.p>
+
+              <p className="mt-3 text-xs font-semibold uppercase tracking-[0.28em] text-[#a88d5d]">
                 {label}
               </p>
             </div>
           ))}
         </div>
-      </div>
+
+        <p className="mt-12 text-base leading-8 text-slate-600 sm:text-lg">
+          2 octombrie 2026, ora 16:00
+        </p>
+      </motion.div>
     </section>
   );
 }

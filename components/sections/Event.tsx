@@ -1,22 +1,32 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Church, Clock3, PartyPopper } from "lucide-react";
+import {
+  Church,
+  Clock3,
+  ExternalLink,
+  MapPin,
+  PartyPopper,
+} from "lucide-react";
 
 const events = [
   {
     icon: Church,
-    label: "Ceremonia religioasă",
-    time: "16:00",
+    title: "Slujba de botez",
+    hour: "16:00",
     place: "Biserica Sf. Mare Mucenic Gheorghe",
-    location: "Aradul Nou",
+    address: "Aradul Nou",
+    maps:
+      "https://www.google.com/maps/search/?api=1&query=Biserica+Sf.+Mare+Mucenic+Gheorghe+Arad",
   },
   {
     icon: PartyPopper,
-    label: "Recepția",
-    time: "17:30",
+    title: "Petrecerea",
+    hour: "17:30",
     place: "Safir 2",
-    location: "Horia",
+    address: "Sat Horia, Str. 1 Decembrie 1918 nr. 2A",
+    maps:
+      "https://www.google.com/maps/search/?api=1&query=Safir+2+Horia",
   },
 ];
 
@@ -24,54 +34,83 @@ export default function Event() {
   return (
     <section
       id="eveniment"
-      className="bg-[#f7f4ee] px-6 py-28 sm:py-36"
+      className="relative px-6 py-24 sm:py-32"
     >
       <div className="mx-auto max-w-6xl">
+
         <div className="text-center">
-          <p className="text-xs font-semibold uppercase tracking-[0.42em] text-[#a88d5d] sm:text-sm">
+          <p className="text-xs font-semibold uppercase tracking-[0.45em] text-[#a88d5d]">
             Programul zilei
           </p>
 
-          <h2 className="mt-6 text-5xl font-semibold text-[#263746] sm:text-6xl">
+          <h2 className="mt-6 text-5xl font-semibold text-[#263746]">
             2 octombrie 2026
           </h2>
 
-          <div className="mx-auto mt-8 h-px w-28 bg-[#b99a63]" />
+          <div className="mx-auto mt-7 h-px w-24 bg-[#b99a63]" />
         </div>
 
-        <div className="relative mt-20 grid gap-8 md:grid-cols-2">
-          <div className="absolute left-1/2 top-8 hidden h-[calc(100%-4rem)] w-px -translate-x-1/2 bg-[#d8c7a4] md:block" />
-
+        <div className="mt-16 grid gap-8 lg:grid-cols-2">
           {events.map((event, index) => {
             const Icon = event.icon;
 
             return (
               <motion.article
-                key={event.label}
-                initial={{ opacity: 0, y: 28 }}
+                key={event.title}
+                initial={{ opacity: 0, y: 35 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: index * 0.15, duration: 0.8 }}
-                className="relative rounded-[34px] border border-white/80 bg-white/75 p-9 shadow-[0_24px_70px_rgba(38,55,70,0.09)] backdrop-blur"
+                transition={{
+                  duration: 0.8,
+                  delay: index * 0.12,
+                }}
+                className="rounded-[40px] border border-white/70 bg-white/78 p-10 shadow-[0_28px_90px_rgba(38,55,70,0.10)] backdrop-blur-md"
               >
-                <div className="flex h-14 w-14 items-center justify-center rounded-full border border-[#d8c7a4] bg-[#faf8f4] text-[#a88d5d]">
-                  <Icon size={25} />
+                <div className="flex items-center justify-between">
+
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#f8f4ed] text-[#b99a63]">
+                    <Icon size={28} />
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <Clock3
+                      size={22}
+                      className="text-[#b99a63]"
+                    />
+
+                    <span className="text-5xl font-semibold text-[#263746]">
+                      {event.hour}
+                    </span>
+                  </div>
                 </div>
 
-                <p className="mt-8 text-xs font-semibold uppercase tracking-[0.32em] text-[#a88d5d]">
-                  {event.label}
+                <p className="mt-10 text-xs font-semibold uppercase tracking-[0.35em] text-[#a88d5d]">
+                  {event.title}
                 </p>
 
-                <h3 className="mt-4 text-3xl font-semibold text-[#263746]">
+                <h3 className="mt-5 text-4xl font-semibold text-[#263746]">
                   {event.place}
                 </h3>
 
-                <p className="mt-3 text-slate-500">{event.location}</p>
+                <p className="mt-5 flex items-start gap-3 text-lg leading-8 text-slate-600">
+                  <MapPin
+                    size={20}
+                    className="mt-1 shrink-0 text-[#a88d5d]"
+                  />
 
-                <div className="mt-8 flex items-center gap-3 text-lg font-semibold text-[#263746]">
-                  <Clock3 size={20} className="text-[#a88d5d]" />
-                  {event.time}
-                </div>
+                  {event.address}
+                </p>
+
+                <a
+                  href={event.maps}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="mt-10 inline-flex items-center gap-3 rounded-full border border-[#263746] bg-white px-7 py-4 font-semibold text-[#263746] transition hover:bg-[#263746] hover:text-white"
+                >
+                  Vezi pe Google Maps
+
+                  <ExternalLink size={18} />
+                </a>
               </motion.article>
             );
           })}
