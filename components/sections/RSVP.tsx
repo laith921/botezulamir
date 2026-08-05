@@ -3,7 +3,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import {
   AlertCircle,
-  Check,
   ChevronDown,
   Heart,
 } from "lucide-react";
@@ -196,7 +195,10 @@ export default function RSVP() {
   }
 
   const inputClass =
-    "w-full appearance-none border-0 border-b border-[#b99a63]/55 bg-transparent px-1 py-3 text-[16px] text-[#263746] outline-none transition placeholder:text-[#7b858d] focus:border-[#8d6f3e] focus:ring-0";
+    "w-full appearance-none border-0 border-b border-[#8d6f3e]/75 bg-transparent px-1 py-3 text-[16px] font-medium text-black outline-none transition placeholder:text-black/75 focus:border-black focus:ring-0";
+
+  const labelClass =
+    "mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#6f542c]";
 
   const personalizedGreeting =
     guest?.greeting?.trim() ||
@@ -234,9 +236,9 @@ export default function RSVP() {
             </p>
           )}
 
-          <p className="mt-4 text-sm leading-6 text-[#56616a] sm:mt-6 sm:text-base sm:leading-8">
+          <p className="mt-4 text-sm leading-6 text-[#39434a] sm:mt-6 sm:text-base sm:leading-8">
             Vă rugăm să răspundeți până la
-            <span className="font-semibold text-[#263746]">
+            <span className="font-semibold text-black">
               {" "}
               15 septembrie 2026.
             </span>
@@ -289,13 +291,13 @@ export default function RSVP() {
               Vă mulțumim!
             </h3>
 
-            <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-[#56616a] sm:text-base">
+            <p className="mx-auto mt-4 max-w-md text-sm leading-7 text-[#39434a] sm:text-base">
               {guest
                 ? `Confirmarea pentru ${guest.display_name} a fost înregistrată.`
                 : "Confirmarea dumneavoastră a fost înregistrată."}
             </p>
 
-            <p className="mt-2 font-serif text-lg italic text-[#8d7852]">
+            <p className="mt-2 font-serif text-lg italic text-[#6f542c]">
               Abia așteptăm să vă avem alături!
             </p>
 
@@ -309,6 +311,10 @@ export default function RSVP() {
                     block: "start",
                   })
               }
+              style={{
+                color: "#263746",
+                WebkitTextFillColor: "#263746",
+              }}
               className="mt-7 appearance-none rounded-full border border-[#c9a86a] bg-[#e8d5ae] px-7 py-3 font-semibold text-[#263746] transition active:scale-[0.98] sm:hover:bg-[#dcc18d]"
             >
               Înapoi la invitație
@@ -321,11 +327,11 @@ export default function RSVP() {
           >
             {guest ? (
               <div>
-                <label className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]">
+                <label className={labelClass}>
                   Invitația pentru
                 </label>
 
-                <div className="border-b border-[#b99a63]/55 px-1 py-3 font-semibold text-[#263746]">
+                <div className="border-b border-[#8d6f3e]/75 px-1 py-3 font-semibold text-black">
                   {guest.display_name}
                 </div>
               </div>
@@ -333,7 +339,7 @@ export default function RSVP() {
               <div>
                 <label
                   htmlFor="name"
-                  className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
+                  className={labelClass}
                 >
                   Nume și prenume
                 </label>
@@ -345,6 +351,10 @@ export default function RSVP() {
                   autoComplete="name"
                   placeholder="Introduceți numele"
                   className={inputClass}
+                  style={{
+                    color: "#000000",
+                    WebkitTextFillColor: "#000000",
+                  }}
                 />
               </div>
             )}
@@ -352,7 +362,7 @@ export default function RSVP() {
             <div>
               <label
                 htmlFor="phone"
-                className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
+                className={labelClass}
               >
                 Telefon
               </label>
@@ -365,13 +375,17 @@ export default function RSVP() {
                 inputMode="tel"
                 placeholder="Numărul de telefon"
                 className={inputClass}
+                style={{
+                  color: "#000000",
+                  WebkitTextFillColor: "#000000",
+                }}
               />
             </div>
 
             <div>
               <label
                 htmlFor="attendance"
-                className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
+                className={labelClass}
               >
                 Participare
               </label>
@@ -382,13 +396,23 @@ export default function RSVP() {
                   name="attendance"
                   defaultValue="yes"
                   className={`${inputClass} cursor-pointer pr-10`}
-                  style={{ colorScheme: "light" }}
+                  style={{
+                    colorScheme: "light",
+                    color: "#000000",
+                    WebkitTextFillColor: "#000000",
+                  }}
                 >
-                  <option value="yes">
+                  <option
+                    value="yes"
+                    style={{ color: "#000000" }}
+                  >
                     Participăm cu drag
                   </option>
 
-                  <option value="no">
+                  <option
+                    value="no"
+                    style={{ color: "#000000" }}
+                  >
                     Nu putem participa
                   </option>
                 </select>
@@ -396,7 +420,7 @@ export default function RSVP() {
                 <ChevronDown
                   size={18}
                   aria-hidden="true"
-                  className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-[#a88d5d]"
+                  className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-[#6f542c]"
                 />
               </div>
             </div>
@@ -405,7 +429,7 @@ export default function RSVP() {
               <div>
                 <label
                   htmlFor="adults"
-                  className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
+                  className={labelClass}
                 >
                   Adulți
                 </label>
@@ -419,13 +443,17 @@ export default function RSVP() {
                   name="adults"
                   inputMode="numeric"
                   className={inputClass}
+                  style={{
+                    color: "#000000",
+                    WebkitTextFillColor: "#000000",
+                  }}
                 />
               </div>
 
               <div>
                 <label
                   htmlFor="children"
-                  className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
+                  className={labelClass}
                 >
                   Copii
                 </label>
@@ -439,6 +467,10 @@ export default function RSVP() {
                   name="children"
                   inputMode="numeric"
                   className={inputClass}
+                  style={{
+                    color: "#000000",
+                    WebkitTextFillColor: "#000000",
+                  }}
                 />
               </div>
             </div>
@@ -446,7 +478,7 @@ export default function RSVP() {
             <div>
               <label
                 htmlFor="allergies"
-                className="mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#8d6f3e]"
+                className={labelClass}
               >
                 Observații
               </label>
@@ -457,11 +489,15 @@ export default function RSVP() {
                 rows={3}
                 placeholder="Alergii alimentare sau alte observații"
                 className={`${inputClass} resize-none`}
+                style={{
+                  color: "#000000",
+                  WebkitTextFillColor: "#000000",
+                }}
               />
             </div>
 
             {error && (
-              <div className="flex items-start gap-3 border-l-2 border-red-400 px-3 py-2 text-sm text-red-700">
+              <div className="flex items-start gap-3 border-l-2 border-red-500 px-3 py-2 text-sm font-medium text-red-800">
                 <AlertCircle
                   size={18}
                   className="mt-0.5 shrink-0"
@@ -474,6 +510,10 @@ export default function RSVP() {
             <button
               type="submit"
               disabled={loading}
+              style={{
+                color: "#263746",
+                WebkitTextFillColor: "#263746",
+              }}
               className="mx-auto block w-full appearance-none rounded-full border border-[#c9a86a] bg-[#e8d5ae] px-7 py-3.5 font-semibold text-[#263746] shadow-[0_12px_30px_rgba(201,168,106,0.20)] transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 sm:max-w-sm sm:px-8 sm:py-4 sm:hover:bg-[#dcc18d]"
             >
               {loading
@@ -481,7 +521,7 @@ export default function RSVP() {
                 : "Trimite confirmarea"}
             </button>
 
-            <p className="text-center text-[11px] leading-5 text-[#6f7880] sm:text-sm sm:leading-6">
+            <p className="text-center text-[11px] font-medium leading-5 text-[#39434a] sm:text-sm sm:leading-6">
               Dacă intervin modificări, vă rugăm să ne
               contactați telefonic.
             </p>
