@@ -1,3 +1,4 @@
+import BackgroundEffects from "@/components/layout/BackgroundEffects";
 import Header from "@/components/layout/Header";
 import OpeningAnimation from "@/components/layout/OpeningAnimation";
 
@@ -9,15 +10,18 @@ import RSVP from "@/components/sections/RSVP";
 
 export default function Home() {
   return (
-    <main>
+    <main className="relative isolate overflow-hidden">
       <OpeningAnimation />
+      <BackgroundEffects />
       <Header />
 
-      <Hero />
-      <Event />
-      <Countdown />
-      <RSVP />
-      <Footer />
+      <div className="relative z-10">
+        <Hero />
+        <Event />
+        <Countdown />
+        <RSVP />
+        <Footer />
+      </div>
     </main>
   );
 }
