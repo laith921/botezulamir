@@ -1,5 +1,4 @@
 import Header from "@/components/layout/Header";
-import MusicPlayer from "@/components/layout/MusicPlayer";
 import OpeningAnimation from "@/components/layout/OpeningAnimation";
 
 import Countdown from "@/components/sections/Countdown";
@@ -13,7 +12,6 @@ export default function Home() {
     <main>
       <OpeningAnimation />
       <Header />
-      <MusicPlayer />
 
       <Hero />
       <Event />
