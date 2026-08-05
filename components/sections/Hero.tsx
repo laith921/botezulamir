@@ -29,19 +29,19 @@ export default function Hero() {
   const backgroundY = useTransform(
     scrollY,
     [0, 1200],
-    [0, 60],
+    [0, 45],
   );
 
   const backgroundScale = useTransform(
     scrollY,
     [0, 1200],
-    [1.02, 1.07],
+    [1, 1.025],
   );
 
   const backgroundOpacity = useTransform(
     scrollY,
     [0, 1400],
-    [1, 0.86],
+    [1, 0.88],
   );
 
   useEffect(() => {
@@ -97,6 +97,24 @@ export default function Hero() {
       id="hero"
       className="relative flex min-h-[80svh] items-center justify-center overflow-hidden px-5 pb-10 pt-12 sm:min-h-screen sm:px-6 sm:py-28"
     >
+      {/* Fundal pentru telefon — imaginea nu mai este tăiată pe lateral */}
+      <motion.div
+        aria-hidden="true"
+        style={{
+          y: backgroundY,
+          scale: backgroundScale,
+          opacity: backgroundOpacity,
+          backgroundImage:
+            "url('/images/hero-background.png')",
+          backgroundSize: "105% auto",
+          backgroundPosition: "center top",
+          backgroundRepeat: "no-repeat",
+          backgroundColor: "#fcfaf6",
+        }}
+        className="pointer-events-none fixed inset-0 -z-20 sm:hidden"
+      />
+
+      {/* Fundal pentru tabletă și desktop */}
       <motion.div
         aria-hidden="true"
         style={{
@@ -106,12 +124,13 @@ export default function Hero() {
           backgroundImage:
             "url('/images/hero-background.png')",
         }}
-        className="pointer-events-none fixed inset-0 -z-20 bg-cover bg-center bg-no-repeat will-change-transform"
+        className="pointer-events-none fixed inset-0 -z-20 hidden bg-cover bg-center bg-no-repeat sm:block"
       />
 
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-white/5 sm:bg-white/10" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-white/[0.03] sm:bg-white/10" />
 
-      <div className="pointer-events-none absolute inset-x-0 top-[7%] -z-[5] mx-auto h-[78%] max-w-xl bg-[radial-gradient(ellipse_at_center,rgba(255,253,248,0.74),rgba(255,253,248,0.26)_48%,transparent_75%)] sm:hidden" />
+      {/* Lumină discretă în centru pentru lizibilitatea textului */}
+      <div className="pointer-events-none absolute inset-x-0 top-[6%] -z-[5] mx-auto h-[82%] max-w-xl bg-[radial-gradient(ellipse_at_center,rgba(255,253,248,0.70),rgba(255,253,248,0.22)_48%,transparent_76%)] sm:hidden" />
 
       <motion.div
         initial={{
@@ -225,10 +244,7 @@ export default function Hero() {
             Vezi detaliile
           </span>
 
-          <ChevronDown
-            size={20}
-            className="mt-1"
-          />
+          <ChevronDown size={20} className="mt-1" />
         </motion.button>
       </motion.div>
     </section>
