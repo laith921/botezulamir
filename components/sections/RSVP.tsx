@@ -521,8 +521,7 @@ export default function RSVP() {
                 : "Trimite confirmarea"}
             </button>
 
-            <p
-  className="mx-auto mt-10 max-w-sm rounded-full bg-white/55 px-6 py-3 text-center text-[12px] font-medium leading-6 text-[#263746] backdrop-blur-[3px] sm:mt-12 sm:max-w-md sm:text-sm"
+            <p className="mx-auto mt-10 max-w-sm rounded-full bg-white/55 px-6 py-3 text-center text-[12px] font-medium leading-6 text-[#263746] backdrop-blur-[3px] sm:mt-12 sm:max-w-md sm:text-sm"
 >
   Dacă intervin modificări, vă rugăm să ne contactați telefonic.
 </p>
