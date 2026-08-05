@@ -30,9 +30,6 @@ export default function Footer() {
           Arad
         </p>
 
-        <p className="mx-auto mt-10 max-w-xl leading-8 text-slate-600">
-          Vă mulțumim că împărtășiți cu noi bucuria acestei zile speciale.
-        </p>
       </motion.div>
 
       <p className="mx-auto mt-8 text-center text-xs tracking-[0.25em] text-[#8d7852]">
