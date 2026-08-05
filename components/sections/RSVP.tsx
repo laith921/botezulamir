@@ -1,7 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useState } from "react";
-import { Check, ChevronDown } from "lucide-react";
+import { AlertCircle, Check, ChevronDown } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
 type GuestData = {
@@ -10,6 +10,67 @@ type GuestData = {
   slug: string;
   greeting: string | null;
 };
+
+type SupabaseError = {
+  message?: string;
+  details?: string;
+  hint?: string;
+  code?: string;
+};
+
+function getReadableError(error: SupabaseError) {
+  const message = error.message ?? "";
+  const details = error.details ?? "";
+  const combined = `${message} ${details}`.toLowerCase();
+
+  if (
+    error.code === "42501" ||
+    combined.includes("row-level security") ||
+    combined.includes("violates row-level security")
+  ) {
+    return "Baza de date nu permite momentan trimiterea confirmării. Trebuie activată permisiunea de salvare RSVP în Supabase.";
+  }
+
+  if (
+    error.code === "23505" ||
+    combined.includes("duplicate key") ||
+    combined.includes("unique constraint")
+  ) {
+    return "Pentru această invitație există deja o confirmare înregistrată.";
+  }
+
+  if (
+    combined.includes("guest_id") ||
+    combined.includes("guest_slug")
+  ) {
+    return "Tabelul RSVP nu este configurat complet pentru invitațiile personalizate.";
+  }
+
+  if (
+    combined.includes("column") &&
+    combined.includes("does not exist")
+  ) {
+    return "În tabelul RSVP lipsește una dintre coloanele necesare.";
+  }
+
+  if (
+    combined.includes("not-null constraint") ||
+    combined.includes("null value")
+  ) {
+    return "O informație obligatorie nu a fost completată corect.";
+  }
+
+  if (
+    combined.includes("failed to fetch") ||
+    combined.includes("network")
+  ) {
+    return "Nu s-a putut realiza conexiunea cu baza de date. Verificați conexiunea la internet și încercați din nou.";
+  }
+
+  return message
+    ? `Confirmarea nu a putut fi trimisă: ${message}`
+    : "Confirmarea nu a putut fi trimisă. Vă rugăm să încercați din nou.";
+}
 
 export default function RSVP() {
   const [guest, setGuest] = useState<GuestData | null>(null);
@@ -21,6 +82,8 @@ export default function RSVP() {
 
   useEffect(() => {
     async function loadGuest() {
+      setLoadingGuest(true);
+
       const params = new URLSearchParams(window.location.search);
       const slug = params.get("inv");
 
@@ -36,7 +99,13 @@ export default function RSVP() {
         },
       );
 
-      if (!guestError && data && data.length > 0) {
+      if (guestError) {
+        console.error("Eroare la încărcarea invitatului:", guestError);
+        setLoadingGuest(false);
+        return;
+      }
+
+      if (data && data.length > 0) {
         setGuest(data[0] as GuestData);
       }
 
@@ -49,40 +118,85 @@ export default function RSVP() {
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
+    if (loading) {
+      return;
+    }
+
     setLoading(true);
     setError("");
 
     const formElement = event.currentTarget;
     const form = new FormData(formElement);
 
-    const payload = {
-      guest_id: guest?.id ?? null,
-      guest_slug: guest?.slug ?? null,
-      name:
-        guest?.display_name ||
-        String(form.get("name") ?? "").trim(),
-      phone: String(form.get("phone") ?? "").trim(),
-      attendance: String(form.get("attendance") ?? "yes"),
-      adults: Number(form.get("adults") ?? 1),
-      children: Number(form.get("children") ?? 0),
-      allergies: String(form.get("allergies") ?? "").trim(),
-    };
+    const name =
+      guest?.display_name ||
+      String(form.get("name") ?? "").trim();
 
-    const { error: insertError } = await supabase
-      .from("rsvp")
-      .insert(payload);
+    const adults = Number(form.get("adults") ?? 1);
+    const children = Number(form.get("children") ?? 0);
 
-    setLoading(false);
-
-    if (insertError) {
-      setError(
-        "A apărut o eroare. Vă rugăm să încercați din nou.",
-      );
+    if (!name) {
+      setError("Vă rugăm să completați numele.");
+      setLoading(false);
       return;
     }
 
-    setSent(true);
-    formElement.reset();
+    if (
+      !Number.isFinite(adults) ||
+      !Number.isFinite(children) ||
+      adults < 0 ||
+      children < 0
+    ) {
+      setError("Numărul de adulți și copii trebuie să fie corect.");
+      setLoading(false);
+      return;
+    }
+
+    const payload = {
+      guest_id: guest?.id ?? null,
+      guest_slug: guest?.slug ?? null,
+      name,
+      phone: String(form.get("phone") ?? "").trim() || null,
+      attendance: String(form.get("attendance") ?? "yes"),
+      adults,
+      children,
+      allergies:
+        String(form.get("allergies") ?? "").trim() || null,
+    };
+
+    try {
+      const { error: insertError } = await supabase
+        .from("rsvp")
+        .insert([payload]);
+
+      if (insertError) {
+        console.error("Eroare Supabase RSVP:", {
+          message: insertError.message,
+          details: insertError.details,
+          hint: insertError.hint,
+          code: insertError.code,
+          payload,
+        });
+
+        setError(getReadableError(insertError));
+        setLoading(false);
+        return;
+      }
+
+      setSent(true);
+      formElement.reset();
+    } catch (unexpectedError) {
+      console.error(
+        "Eroare neașteptată la trimiterea RSVP:",
+        unexpectedError,
+      );
+
+      setError(
+        "A apărut o problemă neașteptată. Vă rugăm să încercați din nou.",
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   const inputClass =
@@ -145,7 +259,10 @@ export default function RSVP() {
               </a>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="mt-10 space-y-5 sm:mt-12 sm:space-y-6">
+            <form
+              onSubmit={handleSubmit}
+              className="mt-10 space-y-5 sm:mt-12 sm:space-y-6"
+            >
               {guest ? (
                 <div>
                   <label className="mb-2 block text-sm font-medium text-slate-700">
@@ -285,9 +402,14 @@ export default function RSVP() {
               </div>
 
               {error && (
-                <p className="rounded-2xl bg-red-50 px-4 py-3 text-center text-sm text-red-700">
-                  {error}
-                </p>
+                <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700">
+                  <AlertCircle
+                    size={19}
+                    className="mt-0.5 shrink-0"
+                  />
+
+                  <p className="leading-6">{error}</p>
+                </div>
               )}
 
               <button
@@ -302,8 +424,8 @@ export default function RSVP() {
               </button>
 
               <p className="text-center text-xs leading-6 text-slate-500 sm:text-sm">
-                Dacă intervin modificări după confirmare, vă
-                rugăm să ne contactați telefonic.
+                Dacă intervin modificări după confirmare, vă rugăm
+                să ne contactați telefonic.
               </p>
             </form>
           )}
