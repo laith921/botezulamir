@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
+import { Mail, Sparkles } from "lucide-react";
 
 export default function Story() {
   return (
@@ -17,16 +18,35 @@ export default function Story() {
         transition={{ duration: 0.9 }}
         className="mx-auto grid max-w-6xl items-center gap-14 lg:grid-cols-[0.9fr_1.1fr]"
       >
-        <div className="relative">
-          <div className="aspect-[4/5] rounded-[36px] border border-[#e7dfd1] bg-[linear-gradient(145deg,#f7f4ee,#ffffff)] shadow-[0_30px_80px_rgba(38,55,70,0.10)]" />
+        <div className="relative flex min-h-[520px] items-center justify-center overflow-hidden rounded-[36px] border border-[#e7dfd1] bg-[linear-gradient(145deg,#f8f5ef,#ffffff)] shadow-[0_30px_80px_rgba(38,55,70,0.10)]">
+          <div className="absolute -left-20 top-10 h-52 w-52 rounded-full bg-[#dfd1b5]/20 blur-3xl" />
+          <div className="absolute -right-20 bottom-10 h-56 w-56 rounded-full bg-[#a9c6d2]/20 blur-3xl" />
 
-          <div className="absolute -bottom-6 -right-6 hidden h-32 w-32 rounded-full border border-[#d8c7a4]/60 bg-[#f7f4ee] lg:block" />
+          <motion.div
+            whileInView={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0, scale: 0.92 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.9 }}
+            className="relative z-10 text-center"
+          >
+            <div className="mx-auto flex h-28 w-28 items-center justify-center rounded-full border border-[#d8c7a4] bg-white/80 shadow-sm">
+              <Mail size={42} className="text-[#a88d5d]" />
+            </div>
 
-          <div className="absolute inset-0 flex items-center justify-center">
-            <span className="text-sm uppercase tracking-[0.35em] text-[#a88d5d]">
-              Fotografie Amir
-            </span>
-          </div>
+            <p className="mt-8 text-xs font-semibold uppercase tracking-[0.42em] text-[#a88d5d]">
+              O invitație specială
+            </p>
+
+            <div className="mx-auto mt-6 flex items-center justify-center gap-3 text-[#b99a63]">
+              <span className="h-px w-14 bg-[#d8c7a4]" />
+              <Sparkles size={18} />
+              <span className="h-px w-14 bg-[#d8c7a4]" />
+            </div>
+
+            <p className="mx-auto mt-6 max-w-xs text-lg leading-8 text-slate-600">
+              Pentru o zi care va rămâne mereu în inimile noastre.
+            </p>
+          </motion.div>
         </div>
 
         <div>
