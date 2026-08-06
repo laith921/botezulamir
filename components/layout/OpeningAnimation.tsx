@@ -63,8 +63,8 @@ export default function OpeningAnimation() {
       : stage === "arrived"
         ? "-12vh"
         : stage === "opening"
-          ? "-32vh"
-          : "-44vh";
+          ? "-18vh"
+          : "-20vh";
 
   const balloonScale =
     stage === "card" || stage === "done"
@@ -219,7 +219,7 @@ export default function OpeningAnimation() {
                 ease: "easeInOut",
               },
             }}
-            className="absolute left-1/2 top-[38%] z-40 w-[170px] -translate-x-1/2 sm:w-[230px] md:w-[270px]"
+            className="absolute left-1/2 top-[42%] z-40 w-[170px] -translate-x-1/2 sm:top-[40%] sm:w-[230px] md:w-[270px]"
           >
             <Image
               src="/opening/balloon-bear.png"
