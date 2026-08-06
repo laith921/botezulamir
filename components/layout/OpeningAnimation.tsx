@@ -99,7 +99,8 @@ export default function OpeningAnimation() {
               alt=""
               fill
               priority
-              sizes="100vw"
+              quality={100}
+              sizes="(max-width: 639px) 100vw, 0px"
               className="object-cover object-center"
             />
           </motion.div>
@@ -123,7 +124,8 @@ export default function OpeningAnimation() {
               alt=""
               fill
               priority
-              sizes="100vw"
+              quality={100}
+              sizes="(min-width: 640px) 100vw, 0px"
               className="object-cover object-center"
             />
           </motion.div>
