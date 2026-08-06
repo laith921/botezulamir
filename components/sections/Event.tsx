@@ -119,13 +119,13 @@ export default function Event() {
                       <span>{event.address}</span>
                     </p>
 
-                    <div className="mt-5 overflow-hidden rounded-[20px] border border-white/60 bg-white/25 shadow-[0_12px_32px_rgba(38,55,70,0.10)] sm:rounded-[24px]">
+                    <div className="mx-auto mt-5 max-w-sm overflow-hidden rounded-[18px] border border-white/60 bg-white/25 shadow-[0_10px_26px_rgba(38,55,70,0.09)] sm:rounded-[20px]">
                       <iframe
                         src={event.embed}
                         title={`Hartă ${event.place}`}
                         loading="lazy"
                         referrerPolicy="no-referrer-when-downgrade"
-                        className="h-[165px] w-full border-0 sm:h-[210px]"
+                        className="h-[90px] w-full border-0 sm:h-[110px]"
                       />
                     </div>
 
