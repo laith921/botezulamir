@@ -18,6 +18,8 @@ const events = [
     address: "Aradul Nou",
     maps:
       "https://www.google.com/maps/search/?api=1&query=Biserica+Sfântul+Mare+Mucenic+Gheorghe+Aradul+Nou",
+    embed:
+      "https://www.google.com/maps?q=Biserica+Sfântul+Mare+Mucenic+Gheorghe+Aradul+Nou&output=embed",
   },
   {
     icon: PartyPopper,
@@ -27,6 +29,8 @@ const events = [
     address: "Sat Horia, Str. 1 Decembrie 1918 nr. 2A",
     maps:
       "https://www.google.com/maps/search/?api=1&query=Safir+2+Horia+Arad",
+    embed:
+      "https://www.google.com/maps?q=Safir+2+Horia+Arad&output=embed",
   },
 ];
 
@@ -67,12 +71,12 @@ export default function Event() {
                 key={event.title}
                 initial={{ opacity: 0, y: 16 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, amount: 0.25 }}
+                viewport={{ once: true, amount: 0.2 }}
                 transition={{
                   duration: 0.6,
                   delay: index * 0.1,
                 }}
-                className={`relative py-6 sm:py-8 ${
+                className={`relative py-7 sm:py-10 ${
                   index !== events.length - 1
                     ? "border-b border-[#c9a86a]/35"
                     : ""
@@ -109,11 +113,21 @@ export default function Event() {
                     <p className="mt-3 flex items-start gap-2 text-sm leading-6 text-[#56616a] sm:text-base">
                       <MapPin
                         size={16}
-                        className="mt-1 shrink-0 text-[#a88d5d] sm:h-[17px] sm:w-[17px]"
+                        className="mt-1 shrink-0 text-[#a88d5d]"
                       />
 
                       <span>{event.address}</span>
                     </p>
+
+                    <div className="mt-5 overflow-hidden rounded-[20px] border border-white/60 bg-white/25 shadow-[0_12px_32px_rgba(38,55,70,0.10)] sm:rounded-[24px]">
+                      <iframe
+                        src={event.embed}
+                        title={`Hartă ${event.place}`}
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        className="h-[165px] w-full border-0 sm:h-[210px]"
+                      />
+                    </div>
 
                     <a
                       href={event.maps}
