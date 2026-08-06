@@ -8,8 +8,10 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
+  Activity,
   ArrowUpDown,
   Check,
+  Clock3,
   Copy,
   Download,
   Eye,
@@ -56,6 +58,13 @@ type GuestDraft = {
   slug: string;
   greeting: string;
   is_active: boolean;
+};
+
+type RecentActivity = {
+  id: string;
+  guestName: string;
+  action: "opened" | "confirmed" | "declined";
+  occurredAt: string;
 };
 
 type RSVPDraft = {
@@ -197,6 +206,20 @@ export default function AdminPage() {
     loadData();
   }, [session]);
 
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    const timer = window.setInterval(() => {
+      loadData();
+    }, 60000);
+
+    return () => {
+      window.clearInterval(timer);
+    };
+  }, [session]);
+
   const statistics = useMemo(() => {
     const confirmed = rows.filter(
       (row) => row.attendance === "yes",
@@ -232,6 +255,35 @@ export default function AdminPage() {
       ),
     };
   }, [rows, guests]);
+
+  const recentActivity = useMemo<RecentActivity[]>(() => {
+    const invitationOpens: RecentActivity[] = guests
+      .filter((guest) => Boolean(guest.last_access))
+      .map((guest) => ({
+        id: `open-${guest.id}-${guest.last_access}`,
+        guestName: guest.display_name,
+        action: "opened",
+        occurredAt: guest.last_access as string,
+      }));
+
+    const rsvpActivity: RecentActivity[] = rows.map((row) => ({
+      id: `rsvp-${row.id}`,
+      guestName: row.name,
+      action:
+        row.attendance === "yes"
+          ? "confirmed"
+          : "declined",
+      occurredAt: row.created_at,
+    }));
+
+    return [...invitationOpens, ...rsvpActivity]
+      .sort(
+        (a, b) =>
+          new Date(b.occurredAt).getTime() -
+          new Date(a.occurredAt).getTime(),
+      )
+      .slice(0, 8);
+  }, [guests, rows]);
 
   function findGuestRSVP(guest: GuestRow) {
     return rows.find(
@@ -322,6 +374,62 @@ export default function AdminPage() {
       );
     });
   }, [rows, rsvpSearch, rsvpSort]);
+
+  function getActivityText(
+    action: RecentActivity["action"],
+  ) {
+    if (action === "opened") {
+      return "a deschis invitația";
+    }
+
+    if (action === "confirmed") {
+      return "a confirmat prezența";
+    }
+
+    return "a anunțat că nu poate participa";
+  }
+
+  function formatRelativeTime(value: string) {
+    const difference =
+      Date.now() - new Date(value).getTime();
+
+    const minutes = Math.max(
+      0,
+      Math.floor(difference / 60000),
+    );
+
+    if (minutes < 1) {
+      return "Acum";
+    }
+
+    if (minutes < 60) {
+      return `Acum ${minutes} min`;
+    }
+
+    const hours = Math.floor(minutes / 60);
+
+    if (hours < 24) {
+      return `Acum ${hours} ${
+        hours === 1 ? "oră" : "ore"
+      }`;
+    }
+
+    const days = Math.floor(hours / 24);
+
+    if (days < 7) {
+      return `Acum ${days} ${
+        days === 1 ? "zi" : "zile"
+      }`;
+    }
+
+    return new Date(value).toLocaleString("ro-RO", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
 
   async function handleLogin(
     event: FormEvent<HTMLFormElement>,
@@ -920,6 +1028,80 @@ export default function AdminPage() {
               </p>
             </article>
           ))}
+        </section>
+
+        <section className="mt-10 overflow-hidden rounded-[30px] bg-white shadow-sm">
+          <div className="flex flex-col gap-4 border-b border-slate-100 p-7 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-[#f7f4ee] text-[#a88d5d]">
+                <Activity size={22} />
+              </div>
+
+              <div>
+                <h2 className="text-3xl font-semibold text-[#263746]">
+                  Activitate recentă
+                </h2>
+
+                <p className="mt-1 text-slate-500">
+                  Ultimele deschideri și răspunsuri RSVP.
+                </p>
+              </div>
+            </div>
+
+            <div className="inline-flex items-center gap-2 text-sm text-slate-500">
+              <Clock3 size={16} />
+              Actualizare automată la 60 secunde
+            </div>
+          </div>
+
+          {recentActivity.length === 0 ? (
+            <p className="p-8 text-slate-500">
+              Nu există încă activitate înregistrată.
+            </p>
+          ) : (
+            <div className="divide-y divide-slate-100">
+              {recentActivity.map((item) => (
+                <article
+                  key={item.id}
+                  className="flex flex-col gap-3 px-7 py-5 sm:flex-row sm:items-center sm:justify-between"
+                >
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span
+                      className={`mt-1.5 h-2.5 w-2.5 shrink-0 rounded-full ${
+                        item.action === "opened"
+                          ? "bg-sky-500"
+                          : item.action === "confirmed"
+                            ? "bg-emerald-500"
+                            : "bg-red-400"
+                      }`}
+                    />
+
+                    <div className="min-w-0">
+                      <p className="truncate font-semibold text-[#263746]">
+                        {item.guestName}
+                      </p>
+
+                      <p className="mt-1 text-sm text-slate-500">
+                        {getActivityText(item.action)}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="shrink-0 text-left sm:text-right">
+                    <p className="text-sm font-medium text-[#8d6f3e]">
+                      {formatRelativeTime(item.occurredAt)}
+                    </p>
+
+                    <p className="mt-1 text-xs text-slate-400">
+                      {new Date(
+                        item.occurredAt,
+                      ).toLocaleString("ro-RO")}
+                    </p>
+                  </div>
+                </article>
+              ))}
+            </div>
+          )}
         </section>
 
         {error && (
