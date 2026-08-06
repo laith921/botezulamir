@@ -195,10 +195,10 @@ export default function RSVP() {
   }
 
   const inputClass =
-    "w-full appearance-none border-0 border-b border-[#8d6f3e]/75 bg-transparent px-1 py-3 text-[16px] font-medium text-black outline-none transition placeholder:text-black/75 focus:border-black focus:ring-0";
+    "mx-auto block w-full appearance-none border-0 border-b border-[#8d6f3e]/75 bg-transparent px-2 py-3 text-center text-[16px] font-medium text-black outline-none transition placeholder:text-center placeholder:text-black/70 focus:border-black focus:ring-0";
 
   const labelClass =
-    "mb-1 block text-xs font-semibold uppercase tracking-[0.18em] text-[#6f542c]";
+    "mb-2 block text-center text-xs font-semibold uppercase tracking-[0.22em] text-[#6f542c]";
 
   const personalizedGreeting =
     guest?.greeting?.trim() ||
@@ -323,7 +323,7 @@ export default function RSVP() {
         ) : (
           <form
             onSubmit={handleSubmit}
-            className="mt-10 space-y-6 sm:mt-14 sm:space-y-8"
+            className="mx-auto mt-10 max-w-xl space-y-6 sm:mt-14 sm:space-y-8"
           >
             {guest ? (
               <div>
@@ -331,7 +331,7 @@ export default function RSVP() {
                   Invitația pentru
                 </label>
 
-                <div className="border-b border-[#8d6f3e]/75 px-1 py-3 font-semibold text-black">
+                <div className="border-b border-[#8d6f3e]/75 px-2 py-3 text-center font-semibold text-black">
                   {guest.display_name}
                 </div>
               </div>
@@ -521,9 +521,9 @@ export default function RSVP() {
                 : "Trimite confirmarea"}
             </button>
 
-            <p className="mx-auto mt-10 max-w-sm rounded-full bg-white/55 px-6 py-3 text-center text-[12px] font-medium leading-6 text-[#263746] backdrop-blur-[3px] sm:mt-12 sm:max-w-md sm:text-sm"
-            >
-  Dacă intervin modificări, vă rugăm să ne contactați telefonic.
+            <p className="mx-auto mt-10 max-w-sm text-center text-[13px] leading-6 text-[#263746] drop-shadow-[0_2px_8px_rgba(255,255,255,0.95)] sm:mt-12 sm:max-w-md sm:text-sm">
+              Dacă intervin modificări, vă rugăm să ne contactați telefonic.
+            </p>
             </p>
           </form>
         )}
