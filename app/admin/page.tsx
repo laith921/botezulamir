@@ -31,6 +31,9 @@ import {
   Users,
   X,
 } from "lucide-react";
+import GuestBookTable, {
+  type GuestBookMessage,
+} from "@/components/admin/GuestBookTable";
 import { supabase } from "@/lib/supabase";
 
 type RSVPRow = {
@@ -83,6 +86,7 @@ type RSVPDraft = {
 type GuestFilter = "all" | "yes" | "no" | "waiting";
 type GuestSort = "newest" | "name" | "status";
 type RSVPSort = "newest" | "name" | "attendance";
+type GuestBookSort = "newest" | "oldest" | "name";
 
 function createSlug(value: string) {
   return value
@@ -118,6 +122,8 @@ export default function AdminPage() {
   const [session, setSession] = useState<Session | null>(null);
   const [rows, setRows] = useState<RSVPRow[]>([]);
   const [guests, setGuests] = useState<GuestRow[]>([]);
+  const [guestBookMessages, setGuestBookMessages] =
+    useState<GuestBookMessage[]>([]);
 
   const [checkingSession, setCheckingSession] = useState(true);
   const [loadingData, setLoadingData] = useState(false);
@@ -149,6 +155,10 @@ export default function AdminPage() {
   const [rsvpSearch, setRsvpSearch] = useState("");
   const [rsvpSort, setRsvpSort] =
     useState<RSVPSort>("newest");
+  const [guestBookSearch, setGuestBookSearch] =
+    useState("");
+  const [guestBookSort, setGuestBookSort] =
+    useState<GuestBookSort>("newest");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -171,7 +181,11 @@ export default function AdminPage() {
     setLoadingData(true);
     setError("");
 
-    const [rsvpResult, guestsResult] = await Promise.all([
+    const [
+      rsvpResult,
+      guestsResult,
+      guestBookResult,
+    ] = await Promise.all([
       supabase
         .from("rsvp")
         .select("*")
@@ -183,18 +197,33 @@ export default function AdminPage() {
           "id, display_name, slug, greeting, is_active, access_count, last_access, created_at",
         )
         .order("created_at", { ascending: false }),
+
+      supabase
+        .from("guestbook_messages")
+        .select(
+          "id, guest_id, guest_slug, guest_name, message, is_approved, created_at",
+        )
+        .order("created_at", { ascending: false }),
     ]);
 
-    if (rsvpResult.error || guestsResult.error) {
+    if (
+      rsvpResult.error ||
+      guestsResult.error ||
+      guestBookResult.error
+    ) {
       console.error(
         "Eroare încărcare date:",
         rsvpResult.error,
         guestsResult.error,
+        guestBookResult.error,
       );
       setError("Datele nu au putut fi încărcate.");
     } else {
       setRows((rsvpResult.data ?? []) as RSVPRow[]);
       setGuests((guestsResult.data ?? []) as GuestRow[]);
+      setGuestBookMessages(
+        (guestBookResult.data ?? []) as GuestBookMessage[],
+      );
     }
 
     setLoadingData(false);
@@ -204,6 +233,7 @@ export default function AdminPage() {
     if (!session) {
       setRows([]);
       setGuests([]);
+      setGuestBookMessages([]);
       return;
     }
 
@@ -287,8 +317,9 @@ export default function AdminPage() {
                 100,
             )
           : 0,
+      guestBookMessages: guestBookMessages.length,
     };
-  }, [rows, guests]);
+  }, [rows, guests, guestBookMessages]);
 
   const recentActivity = useMemo<RecentActivity[]>(() => {
     const invitationOpens: RecentActivity[] = guests
@@ -928,6 +959,85 @@ export default function AdminPage() {
     await loadData();
   }
 
+  async function handleDeleteGuestBookMessage(
+    item: GuestBookMessage,
+  ) {
+    const confirmed = window.confirm(
+      `Ștergi mesajul lăsat de „${item.guest_name}”?`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setActionLoadingId(item.id);
+    setError("");
+    setSuccess("");
+
+    const { error: deleteError } = await supabase
+      .from("guestbook_messages")
+      .delete()
+      .eq("id", item.id);
+
+    if (deleteError) {
+      console.error(
+        "Eroare ștergere mesaj Guest Book:",
+        deleteError,
+      );
+      setError("Mesajul nu a putut fi șters.");
+      setActionLoadingId(null);
+      return;
+    }
+
+    setSuccess("Mesajul din Guest Book a fost șters.");
+    setActionLoadingId(null);
+    await loadData();
+  }
+
+  function exportGuestBook() {
+    const escapeCsv = (
+      value: string | number | null,
+    ) => {
+      const textValue =
+        value === null ? "" : String(value);
+
+      return `"${textValue.replace(/"/g, '""')}"`;
+    };
+
+    const header = [
+      "Invitat",
+      "Mesaj",
+      "Data",
+    ];
+
+    const data = guestBookMessages.map((item) => [
+      item.guest_name,
+      item.message,
+      new Date(item.created_at).toLocaleString("ro-RO"),
+    ]);
+
+    const csv = [header, ...data]
+      .map((line) => line.map(escapeCsv).join(";"))
+      .join("\n");
+
+    const blob = new Blob(["\uFEFF", csv], {
+      type: "text/csv;charset=utf-8",
+    });
+
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+
+    link.href = url;
+    link.download = `guest-book-amir-${new Date()
+      .toISOString()
+      .slice(0, 10)}.csv`;
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }
+
   if (checkingSession) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f7f4ee]">
@@ -1242,6 +1352,13 @@ export default function AdminPage() {
                 <strong>
                   {statistics.adults +
                     statistics.children}
+                </strong>
+              </div>
+
+              <div className="mt-3 rounded-2xl bg-[#f7f4ee] p-4 text-sm text-[#263746]">
+                Mesaje pentru Amir:{" "}
+                <strong>
+                  {statistics.guestBookMessages}
                 </strong>
               </div>
             </article>
@@ -2035,6 +2152,18 @@ export default function AdminPage() {
             </div>
           )}
         </section>
+
+        <GuestBookTable
+          messages={guestBookMessages}
+          loading={loadingData}
+          actionLoadingId={actionLoadingId}
+          search={guestBookSearch}
+          sort={guestBookSort}
+          onSearchChange={setGuestBookSearch}
+          onSortChange={setGuestBookSort}
+          onDelete={handleDeleteGuestBookMessage}
+          onExport={exportGuestBook}
+        />
       </div>
     </main>
   );
