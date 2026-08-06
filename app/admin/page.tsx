@@ -8,14 +8,18 @@ import {
 } from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
+  ArrowUpDown,
   Check,
   Copy,
+  Download,
   Link2,
   LogOut,
+  MessageCircle,
   Pencil,
   Plus,
   RefreshCw,
   Save,
+  Search,
   Trash2,
   Users,
   X,
@@ -60,6 +64,10 @@ type RSVPDraft = {
   allergies: string;
 };
 
+type GuestFilter = "all" | "yes" | "no" | "waiting";
+type GuestSort = "newest" | "name" | "status";
+type RSVPSort = "newest" | "name" | "attendance";
+
 function createSlug(value: string) {
   return value
     .normalize("NFD")
@@ -96,6 +104,15 @@ export default function AdminPage() {
     useState<string | null>(null);
   const [rsvpDraft, setRsvpDraft] =
     useState<RSVPDraft | null>(null);
+
+  const [guestSearch, setGuestSearch] = useState("");
+  const [guestFilter, setGuestFilter] =
+    useState<GuestFilter>("all");
+  const [guestSort, setGuestSort] =
+    useState<GuestSort>("newest");
+  const [rsvpSearch, setRsvpSearch] = useState("");
+  const [rsvpSort, setRsvpSort] =
+    useState<RSVPSort>("newest");
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -196,6 +213,88 @@ export default function AdminPage() {
         row.guest_slug === guest.slug,
     );
   }
+
+  const filteredGuests = useMemo(() => {
+    const query = guestSearch.trim().toLowerCase();
+
+    const filtered = guests.filter((guest) => {
+      const response = rows.find(
+        (row) =>
+          row.guest_id === guest.id ||
+          row.guest_slug === guest.slug,
+      );
+
+      const matchesSearch =
+        !query ||
+        guest.display_name.toLowerCase().includes(query) ||
+        guest.slug.toLowerCase().includes(query) ||
+        (guest.greeting ?? "").toLowerCase().includes(query);
+
+      const matchesFilter =
+        guestFilter === "all" ||
+        (guestFilter === "waiting" && !response) ||
+        (guestFilter === "yes" && response?.attendance === "yes") ||
+        (guestFilter === "no" && response?.attendance === "no");
+
+      return matchesSearch && matchesFilter;
+    });
+
+    return [...filtered].sort((a, b) => {
+      if (guestSort === "name") {
+        return a.display_name.localeCompare(
+          b.display_name,
+          "ro",
+        );
+      }
+
+      if (guestSort === "status") {
+        const statusRank = (guest: GuestRow) => {
+          const response = rows.find(
+            (row) =>
+              row.guest_id === guest.id ||
+              row.guest_slug === guest.slug,
+          );
+
+          if (!response) return 0;
+          if (response.attendance === "yes") return 1;
+          return 2;
+        };
+
+        return statusRank(a) - statusRank(b);
+      }
+
+      return (
+        new Date(b.created_at).getTime() -
+        new Date(a.created_at).getTime()
+      );
+    });
+  }, [guestFilter, guestSearch, guestSort, guests, rows]);
+
+  const filteredRows = useMemo(() => {
+    const query = rsvpSearch.trim().toLowerCase();
+
+    const filtered = rows.filter((row) =>
+      !query ||
+      row.name.toLowerCase().includes(query) ||
+      (row.phone ?? "").toLowerCase().includes(query) ||
+      (row.allergies ?? "").toLowerCase().includes(query),
+    );
+
+    return [...filtered].sort((a, b) => {
+      if (rsvpSort === "name") {
+        return a.name.localeCompare(b.name, "ro");
+      }
+
+      if (rsvpSort === "attendance") {
+        return a.attendance.localeCompare(b.attendance);
+      }
+
+      return (
+        new Date(b.created_at).getTime() -
+        new Date(a.created_at).getTime()
+      );
+    });
+  }, [rows, rsvpSearch, rsvpSort]);
 
   async function handleLogin(
     event: FormEvent<HTMLFormElement>,
@@ -421,6 +520,75 @@ export default function AdminPage() {
     window.setTimeout(() => {
       setCopiedGuestId(null);
     }, 1800);
+  }
+
+  function openWhatsApp(guest: GuestRow) {
+    const origin =
+      typeof window !== "undefined"
+        ? window.location.origin
+        : "https://botezulamir.ro";
+
+    const link = `${origin}/?inv=${guest.slug}`;
+    const message = [
+      `Bună, ${guest.display_name}!`,
+      "",
+      "Ne-ar face mare plăcere să fiți alături de noi la botezul lui Amir.",
+      "",
+      link,
+      "",
+      "Vă rugăm să confirmați prezența până la 15 septembrie 2026.",
+    ].join("\n");
+
+    window.open(
+      `https://wa.me/?text=${encodeURIComponent(message)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
+  }
+
+  function exportRSVP() {
+    const escapeCsv = (value: string | number | null) => {
+      const textValue = value === null ? "" : String(value);
+      return `"${textValue.replace(/"/g, '""')}"`;
+    };
+
+    const header = [
+      "Invitat",
+      "Participă",
+      "Adulți",
+      "Copii",
+      "Telefon",
+      "Observații",
+      "Data răspunsului",
+    ];
+
+    const data = rows.map((row) => [
+      row.name,
+      row.attendance === "yes" ? "Da" : "Nu",
+      row.adults,
+      row.children,
+      row.phone ?? "",
+      row.allergies ?? "",
+      new Date(row.created_at).toLocaleString("ro-RO"),
+    ]);
+
+    const csv = [header, ...data]
+      .map((line) => line.map(escapeCsv).join(";"))
+      .join("\n");
+
+    const blob = new Blob(["\uFEFF", csv], {
+      type: "text/csv;charset=utf-8",
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `rsvp-amir-${new Date()
+      .toISOString()
+      .slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
   }
 
   function startEditRSVP(row: RSVPRow) {
@@ -730,18 +898,55 @@ export default function AdminPage() {
         </section>
 
         <section className="mt-10 overflow-hidden rounded-[30px] bg-white shadow-sm">
-          <div className="flex items-center gap-3 border-b border-slate-100 p-7">
-            <Users size={22} className="text-[#a88d5d]" />
+          <div className="border-b border-slate-100 p-7">
+            <div className="flex items-center gap-3">
+              <Users size={22} className="text-[#a88d5d]" />
 
-            <div>
-              <h2 className="text-3xl font-semibold text-[#263746]">
-                Lista invitaților
-              </h2>
+              <div>
+                <h2 className="text-3xl font-semibold text-[#263746]">
+                  Lista invitaților
+                </h2>
 
-              <p className="mt-1 text-slate-500">
-                Poți copia, deschide, modifica sau șterge
-                fiecare invitație.
-              </p>
+                <p className="mt-1 text-slate-500">
+                  Poți căuta, filtra, trimite, modifica sau șterge orice invitație.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto_auto]">
+              <label className="relative block">
+                <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                  value={guestSearch}
+                  onChange={(event) => setGuestSearch(event.target.value)}
+                  placeholder="Caută după nume, adresare sau link..."
+                  className="w-full rounded-2xl border border-slate-200 py-3 pl-11 pr-4 outline-none focus:border-[#a88d5d]"
+                />
+              </label>
+
+              <select
+                value={guestFilter}
+                onChange={(event) => setGuestFilter(event.target.value as GuestFilter)}
+                className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none focus:border-[#a88d5d]"
+              >
+                <option value="all">Toți invitații</option>
+                <option value="yes">Confirmați</option>
+                <option value="no">Refuzați</option>
+                <option value="waiting">În așteptare</option>
+              </select>
+
+              <label className="relative">
+                <ArrowUpDown className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={17} />
+                <select
+                  value={guestSort}
+                  onChange={(event) => setGuestSort(event.target.value as GuestSort)}
+                  className="rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 outline-none focus:border-[#a88d5d]"
+                >
+                  <option value="newest">Cele mai noi</option>
+                  <option value="name">După nume</option>
+                  <option value="status">După status</option>
+                </select>
+              </label>
             </div>
           </div>
 
@@ -749,9 +954,9 @@ export default function AdminPage() {
             <p className="p-8 text-slate-500">
               Se încarcă...
             </p>
-          ) : guests.length === 0 ? (
+          ) : filteredGuests.length === 0 ? (
             <p className="p-8 text-slate-500">
-              Nu există încă invitații personalizate.
+              Nu există invitații care corespund criteriilor selectate.
             </p>
           ) : (
             <div className="overflow-x-auto">
@@ -769,7 +974,7 @@ export default function AdminPage() {
                 </thead>
 
                 <tbody>
-                  {guests.map((guest) => {
+                  {filteredGuests.map((guest) => {
                     const response = findGuestRSVP(guest);
                     const isEditing =
                       editingGuestId === guest.id;
@@ -937,6 +1142,15 @@ export default function AdminPage() {
                                   )}
                                 </button>
 
+                                <button
+                                  type="button"
+                                  onClick={() => openWhatsApp(guest)}
+                                  className="inline-flex items-center justify-center rounded-full border border-emerald-100 p-2.5 text-emerald-600"
+                                  title="Trimite pe WhatsApp"
+                                >
+                                  <MessageCircle size={17} />
+                                </button>
+
                                 <a
                                   href={`/?inv=${guest.slug}`}
                                   target="_blank"
@@ -984,22 +1198,61 @@ export default function AdminPage() {
 
         <section className="mt-10 overflow-hidden rounded-[30px] bg-white shadow-sm">
           <div className="border-b border-slate-100 p-7">
-            <h2 className="text-3xl font-semibold text-[#263746]">
-              Confirmări RSVP
-            </h2>
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h2 className="text-3xl font-semibold text-[#263746]">
+                  Confirmări RSVP
+                </h2>
 
-            <p className="mt-1 text-slate-500">
-              Poți modifica sau șterge orice răspuns.
-            </p>
+                <p className="mt-1 text-slate-500">
+                  Poți căuta, ordona, exporta, modifica sau șterge orice răspuns.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={exportRSVP}
+                disabled={rows.length === 0}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-[#263746] px-5 py-3 font-semibold text-white disabled:opacity-50"
+              >
+                <Download size={18} />
+                Export Excel
+              </button>
+            </div>
+
+            <div className="mt-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto]">
+              <label className="relative block">
+                <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                <input
+                  value={rsvpSearch}
+                  onChange={(event) => setRsvpSearch(event.target.value)}
+                  placeholder="Caută după nume, telefon sau observații..."
+                  className="w-full rounded-2xl border border-slate-200 py-3 pl-11 pr-4 outline-none focus:border-[#a88d5d]"
+                />
+              </label>
+
+              <label className="relative">
+                <ArrowUpDown className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={17} />
+                <select
+                  value={rsvpSort}
+                  onChange={(event) => setRsvpSort(event.target.value as RSVPSort)}
+                  className="rounded-2xl border border-slate-200 bg-white py-3 pl-11 pr-4 outline-none focus:border-[#a88d5d]"
+                >
+                  <option value="newest">Cele mai noi</option>
+                  <option value="name">După nume</option>
+                  <option value="attendance">După participare</option>
+                </select>
+              </label>
+            </div>
           </div>
 
           {loadingData ? (
             <p className="p-8 text-slate-500">
               Se încarcă...
             </p>
-          ) : rows.length === 0 ? (
+          ) : filteredRows.length === 0 ? (
             <p className="p-8 text-slate-500">
-              Nu există confirmări înregistrate.
+              Nu există răspunsuri care corespund căutării.
             </p>
           ) : (
             <div className="overflow-x-auto">
@@ -1024,7 +1277,7 @@ export default function AdminPage() {
                 </thead>
 
                 <tbody>
-                  {rows.map((row) => {
+                  {filteredRows.map((row) => {
                     const isEditing =
                       editingRSVPId === row.id;
 
