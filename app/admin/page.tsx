@@ -46,6 +46,8 @@ type GuestRow = {
   slug: string;
   greeting: string | null;
   is_active: boolean;
+  access_count: number;
+  last_access: string | null;
   created_at: string;
 };
 
@@ -165,7 +167,7 @@ export default function AdminPage() {
       supabase
         .from("guests")
         .select(
-          "id, display_name, slug, greeting, is_active, created_at",
+          "id, display_name, slug, greeting, is_active, access_count, last_access, created_at",
         )
         .order("created_at", { ascending: false }),
     ]);
@@ -222,6 +224,10 @@ export default function AdminPage() {
       ),
       children: confirmed.reduce(
         (sum, row) => sum + row.children,
+        0,
+      ),
+      totalAccesses: guests.reduce(
+        (sum, guest) => sum + (guest.access_count ?? 0),
         0,
       ),
     };
@@ -893,7 +899,7 @@ export default function AdminPage() {
           </div>
         </header>
 
-        <section className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-6">
+        <section className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-7">
           {[
             ["Invitații", statistics.invitations],
             ["Confirmări", statistics.confirmed],
@@ -901,6 +907,7 @@ export default function AdminPage() {
             ["În așteptare", statistics.waiting],
             ["Adulți", statistics.adults],
             ["Copii", statistics.children],
+            ["Accesări", statistics.totalAccesses],
           ].map(([label, value]) => (
             <article
               key={String(label)}
@@ -1042,7 +1049,7 @@ export default function AdminPage() {
             </p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1180px]">
+              <table className="w-full min-w-[1450px]">
                 <thead className="bg-[#f1ede5]">
                   <tr>
                     <th className="p-4 text-left">Invitat</th>
@@ -1050,6 +1057,12 @@ export default function AdminPage() {
                     <th className="p-4 text-center">Activă</th>
                     <th className="p-4 text-center">
                       Status RSVP
+                    </th>
+                    <th className="p-4 text-center">
+                      Accesări
+                    </th>
+                    <th className="p-4 text-left">
+                      Ultima accesare
                     </th>
                     <th className="p-4 text-right">Acțiuni</th>
                   </tr>
@@ -1171,6 +1184,43 @@ export default function AdminPage() {
                           ) : (
                             <span className="rounded-full bg-red-50 px-3 py-1 text-sm font-medium text-red-700">
                               Nu participă
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="p-4 text-center">
+                          <span
+                            className={`inline-flex min-w-10 items-center justify-center rounded-full px-3 py-1 text-sm font-semibold ${
+                              guest.access_count > 0
+                                ? "bg-sky-50 text-sky-700"
+                                : "bg-slate-100 text-slate-500"
+                            }`}
+                          >
+                            {guest.access_count ?? 0}
+                          </span>
+                        </td>
+
+                        <td className="p-4">
+                          {guest.last_access ? (
+                            <div>
+                              <p className="font-medium text-[#263746]">
+                                {new Date(
+                                  guest.last_access,
+                                ).toLocaleDateString("ro-RO")}
+                              </p>
+
+                              <p className="mt-1 text-sm text-slate-500">
+                                {new Date(
+                                  guest.last_access,
+                                ).toLocaleTimeString("ro-RO", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })}
+                              </p>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-slate-400">
+                              Nu a fost deschisă
                             </span>
                           )}
                         </td>
