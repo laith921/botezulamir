@@ -1,23 +1,72 @@
 "use client";
 
-import { motion } from "motion/react";
+import {
+  motion,
+  useReducedMotion,
+} from "motion/react";
 
 const particles = [
-  { left: "7%", top: "12%", size: 3, duration: 7, delay: 0 },
-  { left: "18%", top: "32%", size: 2, duration: 9, delay: 1.1 },
-  { left: "30%", top: "18%", size: 3, duration: 8, delay: 0.6 },
-  { left: "44%", top: "44%", size: 2, duration: 10, delay: 1.8 },
-  { left: "58%", top: "14%", size: 3, duration: 7.5, delay: 0.9 },
-  { left: "72%", top: "36%", size: 2, duration: 9.5, delay: 2 },
-  { left: "88%", top: "20%", size: 3, duration: 8.5, delay: 1.4 },
-  { left: "12%", top: "62%", size: 2, duration: 10, delay: 0.5 },
-  { left: "26%", top: "78%", size: 3, duration: 8, delay: 1.7 },
-  { left: "52%", top: "68%", size: 2, duration: 9, delay: 0.3 },
-  { left: "68%", top: "84%", size: 3, duration: 7.5, delay: 1.2 },
-  { left: "91%", top: "70%", size: 2, duration: 10, delay: 2.2 },
+  {
+    left: "10%",
+    top: "16%",
+    size: 2,
+    duration: 9,
+    delay: 0,
+  },
+  {
+    left: "28%",
+    top: "33%",
+    size: 2,
+    duration: 11,
+    delay: 1.2,
+  },
+  {
+    left: "48%",
+    top: "14%",
+    size: 2,
+    duration: 10,
+    delay: 0.6,
+  },
+  {
+    left: "72%",
+    top: "29%",
+    size: 2,
+    duration: 12,
+    delay: 1.7,
+  },
+  {
+    left: "88%",
+    top: "18%",
+    size: 2,
+    duration: 10.5,
+    delay: 0.9,
+  },
+  {
+    left: "18%",
+    top: "72%",
+    size: 2,
+    duration: 12,
+    delay: 0.4,
+  },
+  {
+    left: "56%",
+    top: "67%",
+    size: 2,
+    duration: 11,
+    delay: 1.5,
+  },
+  {
+    left: "84%",
+    top: "79%",
+    size: 2,
+    duration: 12.5,
+    delay: 2,
+  },
 ];
 
 export default function BackgroundEffects() {
+  const reduceMotion = useReducedMotion();
+
   return (
     <div
       aria-hidden="true"
@@ -27,22 +76,32 @@ export default function BackgroundEffects() {
         <motion.span
           key={`${particle.left}-${particle.top}-${index}`}
           initial={{
-            opacity: 0.15,
-            scale: 0.8,
+            opacity: 0.08,
+            scale: 0.85,
             y: 0,
           }}
-          animate={{
-            opacity: [0.12, 0.65, 0.12],
-            scale: [0.8, 1.35, 0.8],
-            y: [0, -12, 0],
-          }}
+          animate={
+            reduceMotion
+              ? {
+                  opacity: 0.12,
+                  scale: 1,
+                  y: 0,
+                }
+              : {
+                  opacity: [0.06, 0.28, 0.06],
+                  scale: [0.85, 1.15, 0.85],
+                  y: [0, -8, 0],
+                }
+          }
           transition={{
             duration: particle.duration,
             delay: particle.delay,
             repeat: Infinity,
             ease: "easeInOut",
           }}
-          className="absolute rounded-full bg-[#c9a86a] shadow-[0_0_8px_rgba(201,168,106,0.45)]"
+          className={`absolute rounded-full bg-[#c9a86a] shadow-[0_0_7px_rgba(201,168,106,0.28)] ${
+            index > 4 ? "hidden sm:block" : ""
+          }`}
           style={{
             left: particle.left,
             top: particle.top,
@@ -53,31 +112,70 @@ export default function BackgroundEffects() {
       ))}
 
       <motion.div
-        initial={{ opacity: 0.08 }}
-        animate={{
-          opacity: [0.06, 0.14, 0.06],
-          x: [-15, 15, -15],
-        }}
+        initial={{ opacity: 0.04 }}
+        animate={
+          reduceMotion
+            ? {
+                opacity: 0.05,
+                x: 0,
+                y: 0,
+              }
+            : {
+                opacity: [0.035, 0.075, 0.035],
+                x: [-10, 10, -10],
+                y: [0, -6, 0],
+              }
+        }
         transition={{
-          duration: 22,
+          duration: 28,
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="absolute left-[-90px] top-[22%] h-52 w-52 rounded-full bg-[#d9edf6]/35 blur-3xl sm:h-80 sm:w-80"
+        className="absolute left-[-110px] top-[18%] h-48 w-48 rounded-full bg-[#d9edf6]/24 blur-3xl sm:h-80 sm:w-80"
       />
 
       <motion.div
-        initial={{ opacity: 0.07 }}
-        animate={{
-          opacity: [0.05, 0.12, 0.05],
-          x: [12, -12, 12],
-        }}
+        initial={{ opacity: 0.035 }}
+        animate={
+          reduceMotion
+            ? {
+                opacity: 0.045,
+                x: 0,
+                y: 0,
+              }
+            : {
+                opacity: [0.03, 0.065, 0.03],
+                x: [10, -10, 10],
+                y: [0, 7, 0],
+              }
+        }
         transition={{
-          duration: 26,
+          duration: 32,
           repeat: Infinity,
           ease: "easeInOut",
         }}
-        className="absolute right-[-100px] top-[58%] h-56 w-56 rounded-full bg-[#ead8b5]/30 blur-3xl sm:h-96 sm:w-96"
+        className="absolute right-[-125px] top-[57%] h-52 w-52 rounded-full bg-[#ead8b5]/22 blur-3xl sm:h-96 sm:w-96"
+      />
+
+      <motion.div
+        initial={{ opacity: 0.02 }}
+        animate={
+          reduceMotion
+            ? {
+                opacity: 0.025,
+                scale: 1,
+              }
+            : {
+                opacity: [0.018, 0.04, 0.018],
+                scale: [0.98, 1.04, 0.98],
+              }
+        }
+        transition={{
+          duration: 36,
+          repeat: Infinity,
+          ease: "easeInOut",
+        }}
+        className="absolute left-[22%] top-[44%] hidden h-72 w-72 rounded-full bg-white/25 blur-3xl sm:block"
       />
     </div>
   );
