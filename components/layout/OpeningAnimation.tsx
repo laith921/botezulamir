@@ -85,7 +85,7 @@ export default function OpeningAnimation() {
             aria-hidden="true"
             initial={{ scale: 1.01 }}
             animate={{
-              scale: [1.01, 1.035, 1.01],
+              scale: [1.01, 1.025, 1.01],
             }}
             transition={{
               duration: 18,
@@ -109,7 +109,7 @@ export default function OpeningAnimation() {
             aria-hidden="true"
             initial={{ scale: 1.02 }}
             animate={{
-              scale: [1.02, 1.055, 1.02],
+              scale: [1.02, 1.04, 1.02],
             }}
             transition={{
               duration: 18,
@@ -136,8 +136,8 @@ export default function OpeningAnimation() {
                 stage === "done"
                   ? 0
                   : stage === "card"
-                    ? 0.02
-                    : 0.05,
+                    ? 0.015
+                    : 0.04,
             }}
             transition={{ duration: 1 }}
             className="absolute inset-0 z-10 bg-white"
@@ -194,7 +194,7 @@ export default function OpeningAnimation() {
               y: balloonY,
               opacity: 1,
               scale: balloonScale,
-              rotate: [0, 1.6, -1.6, 0],
+              rotate: [0, 1, -1, 0],
             }}
             transition={{
               y: {
@@ -334,7 +334,7 @@ export default function OpeningAnimation() {
               width={800}
               height={1100}
               priority
-              className="h-auto w-full object-contain drop-shadow-[0_26px_48px_rgba(73,55,28,0.20)]"
+              className="h-auto w-full object-contain drop-shadow-[0_18px_36px_rgba(73,55,28,0.16)]"
             />
           </motion.div>
 
@@ -358,7 +358,7 @@ export default function OpeningAnimation() {
             transition={{
               duration: 0.55,
             }}
-            className="absolute bottom-7 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full border border-[#c9a86a] bg-[#e8d5ae] px-6 py-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#263746] shadow-[0_12px_35px_rgba(38,55,70,0.12)] transition active:scale-[0.98] sm:bottom-10 sm:text-[11px] sm:tracking-[0.26em] sm:hover:bg-[#dcc18d]"
+            className="absolute bottom-7 left-1/2 z-50 -translate-x-1/2 whitespace-nowrap rounded-full border border-[#c9a86a] bg-[#e8d5ae] px-6 py-3 text-[10px] font-semibold uppercase tracking-[0.22em] text-[#263746] shadow-[0_12px_35px_rgba(38,55,70,0.12)] transition duration-300 hover:-translate-y-1 hover:shadow-[0_18px_40px_rgba(201,168,106,0.28)] active:scale-[0.98] sm:bottom-10 sm:text-[11px] sm:tracking-[0.26em] sm:hover:bg-[#dcc18d]"
           >
             Intră în invitație
           </motion.button>
