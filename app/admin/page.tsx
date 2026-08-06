@@ -522,28 +522,27 @@ export default function AdminPage() {
     }, 1800);
   }
 
-  function openWhatsApp(guest: GuestRow) {
+  function createWhatsAppLink(guest: GuestRow) {
     const origin =
       typeof window !== "undefined"
         ? window.location.origin
         : "https://botezulamir.ro";
 
-    const link = `${origin}/?inv=${guest.slug}`;
+    const invitationLink = `${origin}/?inv=${guest.slug}`;
+
     const message = [
       `Bună, ${guest.display_name}!`,
       "",
       "Ne-ar face mare plăcere să fiți alături de noi la botezul lui Amir.",
       "",
-      link,
+      invitationLink,
       "",
       "Vă rugăm să confirmați prezența până la 15 septembrie 2026.",
     ].join("\n");
 
-    window.open(
-      `https://wa.me/?text=${encodeURIComponent(message)}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
+    return `https://api.whatsapp.com/send?text=${encodeURIComponent(
+      message,
+    )}`;
   }
 
   function exportRSVP() {
@@ -1142,14 +1141,15 @@ export default function AdminPage() {
                                   )}
                                 </button>
 
-                                <button
-                                  type="button"
-                                  onClick={() => openWhatsApp(guest)}
+                                <a
+                                  href={createWhatsAppLink(guest)}
+                                  target="_blank"
+                                  rel="noreferrer"
                                   className="inline-flex items-center justify-center rounded-full border border-emerald-100 p-2.5 text-emerald-600"
                                   title="Trimite pe WhatsApp"
                                 >
                                   <MessageCircle size={17} />
-                                </button>
+                                </a>
 
                                 <a
                                   href={`/?inv=${guest.slug}`}
