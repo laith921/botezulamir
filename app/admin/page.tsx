@@ -1,16 +1,24 @@
 "use client";
 
-import { FormEvent, useEffect, useMemo, useState } from "react";
+import {
+  FormEvent,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { Session } from "@supabase/supabase-js";
 import {
   Check,
   Copy,
   Link2,
   LogOut,
+  Pencil,
   Plus,
   RefreshCw,
+  Save,
   Trash2,
   Users,
+  X,
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 
@@ -36,6 +44,22 @@ type GuestRow = {
   created_at: string;
 };
 
+type GuestDraft = {
+  display_name: string;
+  slug: string;
+  greeting: string;
+  is_active: boolean;
+};
+
+type RSVPDraft = {
+  name: string;
+  phone: string;
+  attendance: "yes" | "no";
+  adults: number;
+  children: number;
+  allergies: string;
+};
+
 function createSlug(value: string) {
   return value
     .normalize("NFD")
@@ -55,10 +79,23 @@ export default function AdminPage() {
   const [loadingData, setLoadingData] = useState(false);
   const [loginLoading, setLoginLoading] = useState(false);
   const [guestLoading, setGuestLoading] = useState(false);
+  const [actionLoadingId, setActionLoadingId] =
+    useState<string | null>(null);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [copiedGuestId, setCopiedGuestId] = useState<string | null>(null);
+  const [copiedGuestId, setCopiedGuestId] =
+    useState<string | null>(null);
+
+  const [editingGuestId, setEditingGuestId] =
+    useState<string | null>(null);
+  const [guestDraft, setGuestDraft] =
+    useState<GuestDraft | null>(null);
+
+  const [editingRSVPId, setEditingRSVPId] =
+    useState<string | null>(null);
+  const [rsvpDraft, setRsvpDraft] =
+    useState<RSVPDraft | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -68,9 +105,11 @@ export default function AdminPage() {
 
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
-      setSession(nextSession);
-    });
+    } = supabase.auth.onAuthStateChange(
+      (_event, nextSession) => {
+        setSession(nextSession);
+      },
+    );
 
     return () => subscription.unsubscribe();
   }, []);
@@ -87,11 +126,18 @@ export default function AdminPage() {
 
       supabase
         .from("guests")
-        .select("id, display_name, slug, greeting, is_active, created_at")
+        .select(
+          "id, display_name, slug, greeting, is_active, created_at",
+        )
         .order("created_at", { ascending: false }),
     ]);
 
     if (rsvpResult.error || guestsResult.error) {
+      console.error(
+        "Eroare încărcare date:",
+        rsvpResult.error,
+        guestsResult.error,
+      );
       setError("Datele nu au putut fi încărcate.");
     } else {
       setRows((rsvpResult.data ?? []) as RSVPRow[]);
@@ -112,26 +158,48 @@ export default function AdminPage() {
   }, [session]);
 
   const statistics = useMemo(() => {
-    const confirmed = rows.filter((row) => row.attendance === "yes");
-    const declined = rows.filter((row) => row.attendance === "no");
+    const confirmed = rows.filter(
+      (row) => row.attendance === "yes",
+    );
+    const declined = rows.filter(
+      (row) => row.attendance === "no",
+    );
+    const waiting = guests.filter(
+      (guest) =>
+        !rows.some(
+          (row) =>
+            row.guest_id === guest.id ||
+            row.guest_slug === guest.slug,
+        ),
+    ).length;
 
     return {
       invitations: guests.length,
       confirmed: confirmed.length,
       declined: declined.length,
-      adults: confirmed.reduce((sum, row) => sum + row.adults, 0),
-      children: confirmed.reduce((sum, row) => sum + row.children, 0),
+      waiting,
+      adults: confirmed.reduce(
+        (sum, row) => sum + row.adults,
+        0,
+      ),
+      children: confirmed.reduce(
+        (sum, row) => sum + row.children,
+        0,
+      ),
     };
   }, [rows, guests]);
 
   function findGuestRSVP(guest: GuestRow) {
     return rows.find(
       (row) =>
-        row.guest_id === guest.id || row.guest_slug === guest.slug,
+        row.guest_id === guest.id ||
+        row.guest_slug === guest.slug,
     );
   }
 
-  async function handleLogin(event: FormEvent<HTMLFormElement>) {
+  async function handleLogin(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
     setLoginLoading(true);
@@ -158,7 +226,9 @@ export default function AdminPage() {
     await supabase.auth.signOut();
   }
 
-  async function handleAddGuest(event: FormEvent<HTMLFormElement>) {
+  async function handleAddGuest(
+    event: FormEvent<HTMLFormElement>,
+  ) {
     event.preventDefault();
 
     setGuestLoading(true);
@@ -172,7 +242,10 @@ export default function AdminPage() {
       form.get("display_name") ?? "",
     ).trim();
 
-    const customSlug = String(form.get("slug") ?? "").trim();
+    const customSlug = String(
+      form.get("slug") ?? "",
+    ).trim();
+
     const slug = createSlug(customSlug || displayName);
 
     const payload = {
@@ -191,6 +264,10 @@ export default function AdminPage() {
       if (insertError.code === "23505") {
         setError("Există deja o invitație cu acest link.");
       } else {
+        console.error(
+          "Eroare adăugare invitat:",
+          insertError,
+        );
         setError("Invitatul nu a putut fi adăugat.");
       }
 
@@ -205,17 +282,109 @@ export default function AdminPage() {
     await loadData();
   }
 
-  async function handleDeleteGuest(guest: GuestRow) {
-    const confirmed = window.confirm(
-      `Ștergi invitația pentru „${guest.display_name}”?`,
+  function startEditGuest(guest: GuestRow) {
+    setEditingGuestId(guest.id);
+    setGuestDraft({
+      display_name: guest.display_name,
+      slug: guest.slug,
+      greeting: guest.greeting ?? "",
+      is_active: guest.is_active,
+    });
+    setError("");
+    setSuccess("");
+  }
+
+  function cancelEditGuest() {
+    setEditingGuestId(null);
+    setGuestDraft(null);
+  }
+
+  async function handleUpdateGuest(guest: GuestRow) {
+    if (!guestDraft) return;
+
+    const displayName = guestDraft.display_name.trim();
+    const slug = createSlug(
+      guestDraft.slug || guestDraft.display_name,
     );
 
-    if (!confirmed) {
+    if (!displayName || !slug) {
+      setError(
+        "Numele invitatului și linkul nu pot fi goale.",
+      );
       return;
     }
 
+    setActionLoadingId(guest.id);
     setError("");
     setSuccess("");
+
+    const { error: updateError } = await supabase
+      .from("guests")
+      .update({
+        display_name: displayName,
+        slug,
+        greeting: guestDraft.greeting.trim() || null,
+        is_active: guestDraft.is_active,
+      })
+      .eq("id", guest.id);
+
+    if (updateError) {
+      console.error(
+        "Eroare actualizare invitație:",
+        updateError,
+      );
+
+      setError(
+        updateError.code === "23505"
+          ? "Există deja o invitație cu acest link."
+          : "Invitația nu a putut fi modificată.",
+      );
+
+      setActionLoadingId(null);
+      return;
+    }
+
+    setEditingGuestId(null);
+    setGuestDraft(null);
+    setActionLoadingId(null);
+    setSuccess("Invitația a fost modificată.");
+
+    await loadData();
+  }
+
+  async function handleDeleteGuest(guest: GuestRow) {
+    const response = findGuestRSVP(guest);
+
+    const confirmed = window.confirm(
+      response
+        ? `Ștergi invitația pentru „${guest.display_name}” și răspunsul RSVP asociat?`
+        : `Ștergi invitația pentru „${guest.display_name}”?`,
+    );
+
+    if (!confirmed) return;
+
+    setActionLoadingId(guest.id);
+    setError("");
+    setSuccess("");
+
+    if (response) {
+      const { error: rsvpDeleteError } = await supabase
+        .from("rsvp")
+        .delete()
+        .eq("id", response.id);
+
+      if (rsvpDeleteError) {
+        console.error(
+          "Eroare ștergere RSVP asociat:",
+          rsvpDeleteError,
+        );
+        setError(
+          "Răspunsul asociat nu a putut fi șters.",
+        );
+        setActionLoadingId(null);
+        return;
+      }
+    }
 
     const { error: deleteError } = await supabase
       .from("guests")
@@ -223,10 +392,16 @@ export default function AdminPage() {
       .eq("id", guest.id);
 
     if (deleteError) {
+      console.error(
+        "Eroare ștergere invitație:",
+        deleteError,
+      );
       setError("Invitația nu a putut fi ștearsă.");
+      setActionLoadingId(null);
       return;
     }
 
+    setActionLoadingId(null);
     setSuccess("Invitația a fost ștearsă.");
     await loadData();
   }
@@ -246,6 +421,113 @@ export default function AdminPage() {
     window.setTimeout(() => {
       setCopiedGuestId(null);
     }, 1800);
+  }
+
+  function startEditRSVP(row: RSVPRow) {
+    setEditingRSVPId(row.id);
+    setRsvpDraft({
+      name: row.name,
+      phone: row.phone ?? "",
+      attendance: row.attendance,
+      adults: row.adults,
+      children: row.children,
+      allergies: row.allergies ?? "",
+    });
+    setError("");
+    setSuccess("");
+  }
+
+  function cancelEditRSVP() {
+    setEditingRSVPId(null);
+    setRsvpDraft(null);
+  }
+
+  async function handleUpdateRSVP(row: RSVPRow) {
+    if (!rsvpDraft) return;
+
+    if (!rsvpDraft.name.trim()) {
+      setError("Numele din răspuns nu poate fi gol.");
+      return;
+    }
+
+    if (
+      !Number.isFinite(rsvpDraft.adults) ||
+      !Number.isFinite(rsvpDraft.children) ||
+      rsvpDraft.adults < 0 ||
+      rsvpDraft.children < 0
+    ) {
+      setError(
+        "Numărul de adulți și copii trebuie să fie valid.",
+      );
+      return;
+    }
+
+    setActionLoadingId(row.id);
+    setError("");
+    setSuccess("");
+
+    const { error: updateError } = await supabase
+      .from("rsvp")
+      .update({
+        name: rsvpDraft.name.trim(),
+        phone: rsvpDraft.phone.trim() || null,
+        attendance: rsvpDraft.attendance,
+        adults: rsvpDraft.adults,
+        children: rsvpDraft.children,
+        allergies: rsvpDraft.allergies.trim() || null,
+      })
+      .eq("id", row.id);
+
+    if (updateError) {
+      console.error(
+        "Eroare actualizare RSVP:",
+        updateError,
+      );
+      setError("Răspunsul RSVP nu a putut fi modificat.");
+      setActionLoadingId(null);
+      return;
+    }
+
+    setEditingRSVPId(null);
+    setRsvpDraft(null);
+    setActionLoadingId(null);
+    setSuccess("Răspunsul RSVP a fost modificat.");
+
+    await loadData();
+  }
+
+  async function handleDeleteRSVP(row: RSVPRow) {
+    const confirmed = window.confirm(
+      `Ștergi răspunsul RSVP pentru „${row.name}”? Invitatul va putea completa din nou formularul.`,
+    );
+
+    if (!confirmed) return;
+
+    setActionLoadingId(row.id);
+    setError("");
+    setSuccess("");
+
+    const { error: deleteError } = await supabase
+      .from("rsvp")
+      .delete()
+      .eq("id", row.id);
+
+    if (deleteError) {
+      console.error(
+        "Eroare ștergere RSVP:",
+        deleteError,
+      );
+      setError("Răspunsul RSVP nu a putut fi șters.");
+      setActionLoadingId(null);
+      return;
+    }
+
+    setActionLoadingId(null);
+    setSuccess(
+      "Răspunsul RSVP a fost șters. Invitatul poate răspunde din nou.",
+    );
+
+    await loadData();
   }
 
   if (checkingSession) {
@@ -270,7 +552,10 @@ export default function AdminPage() {
             Autentificare
           </h1>
 
-          <form onSubmit={handleLogin} className="mt-10 space-y-5">
+          <form
+            onSubmit={handleLogin}
+            className="mt-10 space-y-5"
+          >
             <input
               required
               type="email"
@@ -340,7 +625,9 @@ export default function AdminPage() {
             >
               <RefreshCw
                 size={18}
-                className={loadingData ? "animate-spin" : ""}
+                className={
+                  loadingData ? "animate-spin" : ""
+                }
               />
               Reîncarcă
             </button>
@@ -356,11 +643,12 @@ export default function AdminPage() {
           </div>
         </header>
 
-        <section className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-5">
+        <section className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-6">
           {[
             ["Invitații", statistics.invitations],
             ["Confirmări", statistics.confirmed],
             ["Refuzuri", statistics.declined],
+            ["În așteptare", statistics.waiting],
             ["Adulți", statistics.adults],
             ["Copii", statistics.children],
           ].map(([label, value]) => (
@@ -451,25 +739,31 @@ export default function AdminPage() {
               </h2>
 
               <p className="mt-1 text-slate-500">
-                Copiază linkul și trimite-l fiecărui invitat.
+                Poți copia, deschide, modifica sau șterge
+                fiecare invitație.
               </p>
             </div>
           </div>
 
           {loadingData ? (
-            <p className="p-8 text-slate-500">Se încarcă...</p>
+            <p className="p-8 text-slate-500">
+              Se încarcă...
+            </p>
           ) : guests.length === 0 ? (
             <p className="p-8 text-slate-500">
               Nu există încă invitații personalizate.
             </p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[850px]">
+              <table className="w-full min-w-[1180px]">
                 <thead className="bg-[#f1ede5]">
                   <tr>
                     <th className="p-4 text-left">Invitat</th>
                     <th className="p-4 text-left">Link</th>
-                    <th className="p-4 text-center">Status</th>
+                    <th className="p-4 text-center">Activă</th>
+                    <th className="p-4 text-center">
+                      Status RSVP
+                    </th>
                     <th className="p-4 text-right">Acțiuni</th>
                   </tr>
                 </thead>
@@ -477,28 +771,105 @@ export default function AdminPage() {
                 <tbody>
                   {guests.map((guest) => {
                     const response = findGuestRSVP(guest);
+                    const isEditing =
+                      editingGuestId === guest.id;
 
                     return (
                       <tr
                         key={guest.id}
-                        className="border-t border-slate-100"
+                        className="border-t border-slate-100 align-top"
                       >
                         <td className="p-4">
-                          <p className="font-semibold text-[#263746]">
-                            {guest.display_name}
-                          </p>
+                          {isEditing && guestDraft ? (
+                            <div className="space-y-3">
+                              <input
+                                value={guestDraft.display_name}
+                                onChange={(event) =>
+                                  setGuestDraft({
+                                    ...guestDraft,
+                                    display_name:
+                                      event.target.value,
+                                  })
+                                }
+                                className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-[#a88d5d]"
+                              />
 
-                          {guest.greeting && (
-                            <p className="mt-1 text-sm text-slate-500">
-                              {guest.greeting}
-                            </p>
+                              <input
+                                value={guestDraft.greeting}
+                                onChange={(event) =>
+                                  setGuestDraft({
+                                    ...guestDraft,
+                                    greeting:
+                                      event.target.value,
+                                  })
+                                }
+                                placeholder="Adresare"
+                                className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-[#a88d5d]"
+                              />
+                            </div>
+                          ) : (
+                            <>
+                              <p className="font-semibold text-[#263746]">
+                                {guest.display_name}
+                              </p>
+
+                              {guest.greeting && (
+                                <p className="mt-1 text-sm text-slate-500">
+                                  {guest.greeting}
+                                </p>
+                              )}
+                            </>
                           )}
                         </td>
 
                         <td className="p-4">
-                          <code className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">
-                            ?inv={guest.slug}
-                          </code>
+                          {isEditing && guestDraft ? (
+                            <input
+                              value={guestDraft.slug}
+                              onChange={(event) =>
+                                setGuestDraft({
+                                  ...guestDraft,
+                                  slug: event.target.value,
+                                })
+                              }
+                              className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-[#a88d5d]"
+                            />
+                          ) : (
+                            <code className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                              ?inv={guest.slug}
+                            </code>
+                          )}
+                        </td>
+
+                        <td className="p-4 text-center">
+                          {isEditing && guestDraft ? (
+                            <label className="inline-flex items-center gap-2">
+                              <input
+                                type="checkbox"
+                                checked={
+                                  guestDraft.is_active
+                                }
+                                onChange={(event) =>
+                                  setGuestDraft({
+                                    ...guestDraft,
+                                    is_active:
+                                      event.target.checked,
+                                  })
+                                }
+                              />
+                              <span className="text-sm">
+                                Activă
+                              </span>
+                            </label>
+                          ) : guest.is_active ? (
+                            <span className="rounded-full bg-emerald-50 px-3 py-1 text-sm font-medium text-emerald-700">
+                              Da
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-slate-100 px-3 py-1 text-sm font-medium text-slate-600">
+                              Nu
+                            </span>
+                          )}
                         </td>
 
                         <td className="p-4 text-center">
@@ -519,42 +890,87 @@ export default function AdminPage() {
 
                         <td className="p-4">
                           <div className="flex justify-end gap-2">
-                            <button
-                              type="button"
-                              onClick={() => copyGuestLink(guest)}
-                              className="inline-flex items-center gap-2 rounded-full border border-[#d8c7a4] bg-white px-4 py-2 text-sm font-semibold text-[#263746]"
-                            >
-                              {copiedGuestId === guest.id ? (
-                                <>
-                                  <Check size={16} />
-                                  Copiat
-                                </>
-                              ) : (
-                                <>
-                                  <Copy size={16} />
-                                  Copiază link
-                                </>
-                              )}
-                            </button>
+                            {isEditing ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleUpdateGuest(guest)
+                                  }
+                                  disabled={
+                                    actionLoadingId ===
+                                    guest.id
+                                  }
+                                  className="inline-flex items-center gap-2 rounded-full bg-[#263746] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                                >
+                                  <Save size={16} />
+                                  Salvează
+                                </button>
 
-                            <a
-                              href={`/?inv=${guest.slug}`}
-                              target="_blank"
-                              rel="noreferrer"
-                              className="inline-flex items-center justify-center rounded-full border border-slate-200 p-2.5 text-slate-600"
-                              title="Deschide invitația"
-                            >
-                              <Link2 size={17} />
-                            </a>
+                                <button
+                                  type="button"
+                                  onClick={cancelEditGuest}
+                                  className="inline-flex items-center justify-center rounded-full border border-slate-200 p-2.5 text-slate-600"
+                                >
+                                  <X size={17} />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    copyGuestLink(guest)
+                                  }
+                                  className="inline-flex items-center gap-2 rounded-full border border-[#d8c7a4] bg-white px-4 py-2 text-sm font-semibold text-[#263746]"
+                                >
+                                  {copiedGuestId === guest.id ? (
+                                    <>
+                                      <Check size={16} />
+                                      Copiat
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy size={16} />
+                                      Copiază link
+                                    </>
+                                  )}
+                                </button>
 
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteGuest(guest)}
-                              className="inline-flex items-center justify-center rounded-full border border-red-100 p-2.5 text-red-600"
-                              title="Șterge invitația"
-                            >
-                              <Trash2 size={17} />
-                            </button>
+                                <a
+                                  href={`/?inv=${guest.slug}`}
+                                  target="_blank"
+                                  rel="noreferrer"
+                                  className="inline-flex items-center justify-center rounded-full border border-slate-200 p-2.5 text-slate-600"
+                                >
+                                  <Link2 size={17} />
+                                </a>
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    startEditGuest(guest)
+                                  }
+                                  className="inline-flex items-center justify-center rounded-full border border-[#d8c7a4] p-2.5 text-[#8d6f3e]"
+                                >
+                                  <Pencil size={17} />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleDeleteGuest(guest)
+                                  }
+                                  disabled={
+                                    actionLoadingId ===
+                                    guest.id
+                                  }
+                                  className="inline-flex items-center justify-center rounded-full border border-red-100 p-2.5 text-red-600 disabled:opacity-60"
+                                >
+                                  <Trash2 size={17} />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </td>
                       </tr>
@@ -571,66 +987,237 @@ export default function AdminPage() {
             <h2 className="text-3xl font-semibold text-[#263746]">
               Confirmări RSVP
             </h2>
+
+            <p className="mt-1 text-slate-500">
+              Poți modifica sau șterge orice răspuns.
+            </p>
           </div>
 
           {loadingData ? (
-            <p className="p-8 text-slate-500">Se încarcă...</p>
+            <p className="p-8 text-slate-500">
+              Se încarcă...
+            </p>
           ) : rows.length === 0 ? (
             <p className="p-8 text-slate-500">
               Nu există confirmări înregistrate.
             </p>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[1000px]">
+              <table className="w-full min-w-[1280px]">
                 <thead className="bg-[#f1ede5]">
                   <tr>
                     <th className="p-4 text-left">Nume</th>
                     <th className="p-4 text-left">Telefon</th>
-                    <th className="p-4 text-center">Participă</th>
+                    <th className="p-4 text-center">
+                      Participă
+                    </th>
                     <th className="p-4 text-center">Adulți</th>
                     <th className="p-4 text-center">Copii</th>
-                    <th className="p-4 text-left">Observații</th>
+                    <th className="p-4 text-left">
+                      Observații
+                    </th>
                     <th className="p-4 text-left">Data</th>
+                    <th className="p-4 text-right">
+                      Acțiuni
+                    </th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {rows.map((row) => (
-                    <tr
-                      key={row.id}
-                      className="border-t border-slate-100"
-                    >
-                      <td className="p-4 font-medium">
-                        {row.name}
-                      </td>
+                  {rows.map((row) => {
+                    const isEditing =
+                      editingRSVPId === row.id;
 
-                      <td className="p-4">
-                        {row.phone || "—"}
-                      </td>
+                    return (
+                      <tr
+                        key={row.id}
+                        className="border-t border-slate-100 align-top"
+                      >
+                        <td className="p-4">
+                          {isEditing && rsvpDraft ? (
+                            <input
+                              value={rsvpDraft.name}
+                              onChange={(event) =>
+                                setRsvpDraft({
+                                  ...rsvpDraft,
+                                  name: event.target.value,
+                                })
+                              }
+                              className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-[#a88d5d]"
+                            />
+                          ) : (
+                            <span className="font-medium">
+                              {row.name}
+                            </span>
+                          )}
+                        </td>
 
-                      <td className="p-4 text-center">
-                        {row.attendance === "yes" ? "Da" : "Nu"}
-                      </td>
+                        <td className="p-4">
+                          {isEditing && rsvpDraft ? (
+                            <input
+                              value={rsvpDraft.phone}
+                              onChange={(event) =>
+                                setRsvpDraft({
+                                  ...rsvpDraft,
+                                  phone: event.target.value,
+                                })
+                              }
+                              className="w-full rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-[#a88d5d]"
+                            />
+                          ) : (
+                            row.phone || "—"
+                          )}
+                        </td>
 
-                      <td className="p-4 text-center">
-                        {row.adults}
-                      </td>
+                        <td className="p-4 text-center">
+                          {isEditing && rsvpDraft ? (
+                            <select
+                              value={rsvpDraft.attendance}
+                              onChange={(event) =>
+                                setRsvpDraft({
+                                  ...rsvpDraft,
+                                  attendance:
+                                    event.target.value as
+                                      | "yes"
+                                      | "no",
+                                })
+                              }
+                              className="rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-[#a88d5d]"
+                            >
+                              <option value="yes">Da</option>
+                              <option value="no">Nu</option>
+                            </select>
+                          ) : row.attendance === "yes" ? (
+                            "Da"
+                          ) : (
+                            "Nu"
+                          )}
+                        </td>
 
-                      <td className="p-4 text-center">
-                        {row.children}
-                      </td>
+                        <td className="p-4 text-center">
+                          {isEditing && rsvpDraft ? (
+                            <input
+                              type="number"
+                              min="0"
+                              value={rsvpDraft.adults}
+                              onChange={(event) =>
+                                setRsvpDraft({
+                                  ...rsvpDraft,
+                                  adults: Number(
+                                    event.target.value,
+                                  ),
+                                })
+                              }
+                              className="w-20 rounded-xl border border-slate-200 px-3 py-2 text-center outline-none focus:border-[#a88d5d]"
+                            />
+                          ) : (
+                            row.adults
+                          )}
+                        </td>
 
-                      <td className="p-4">
-                        {row.allergies || "—"}
-                      </td>
+                        <td className="p-4 text-center">
+                          {isEditing && rsvpDraft ? (
+                            <input
+                              type="number"
+                              min="0"
+                              value={rsvpDraft.children}
+                              onChange={(event) =>
+                                setRsvpDraft({
+                                  ...rsvpDraft,
+                                  children: Number(
+                                    event.target.value,
+                                  ),
+                                })
+                              }
+                              className="w-20 rounded-xl border border-slate-200 px-3 py-2 text-center outline-none focus:border-[#a88d5d]"
+                            />
+                          ) : (
+                            row.children
+                          )}
+                        </td>
 
-                      <td className="p-4">
-                        {new Date(row.created_at).toLocaleString(
-                          "ro-RO",
-                        )}
-                      </td>
-                    </tr>
-                  ))}
+                        <td className="p-4">
+                          {isEditing && rsvpDraft ? (
+                            <textarea
+                              rows={2}
+                              value={rsvpDraft.allergies}
+                              onChange={(event) =>
+                                setRsvpDraft({
+                                  ...rsvpDraft,
+                                  allergies:
+                                    event.target.value,
+                                })
+                              }
+                              className="w-full resize-none rounded-xl border border-slate-200 px-3 py-2 outline-none focus:border-[#a88d5d]"
+                            />
+                          ) : (
+                            row.allergies || "—"
+                          )}
+                        </td>
+
+                        <td className="p-4">
+                          {new Date(
+                            row.created_at,
+                          ).toLocaleString("ro-RO")}
+                        </td>
+
+                        <td className="p-4">
+                          <div className="flex justify-end gap-2">
+                            {isEditing ? (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleUpdateRSVP(row)
+                                  }
+                                  disabled={
+                                    actionLoadingId === row.id
+                                  }
+                                  className="inline-flex items-center gap-2 rounded-full bg-[#263746] px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                                >
+                                  <Save size={16} />
+                                  Salvează
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={cancelEditRSVP}
+                                  className="inline-flex items-center justify-center rounded-full border border-slate-200 p-2.5 text-slate-600"
+                                >
+                                  <X size={17} />
+                                </button>
+                              </>
+                            ) : (
+                              <>
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    startEditRSVP(row)
+                                  }
+                                  className="inline-flex items-center justify-center rounded-full border border-[#d8c7a4] p-2.5 text-[#8d6f3e]"
+                                >
+                                  <Pencil size={17} />
+                                </button>
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleDeleteRSVP(row)
+                                  }
+                                  disabled={
+                                    actionLoadingId === row.id
+                                  }
+                                  className="inline-flex items-center justify-center rounded-full border border-red-100 p-2.5 text-red-600 disabled:opacity-60"
+                                >
+                                  <Trash2 size={17} />
+                                </button>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
