@@ -16,6 +16,8 @@ import {
   Download,
   Eye,
   LogOut,
+  MailOpen,
+  MailQuestion,
   MessageCircle,
   Pencil,
   Plus,
@@ -23,7 +25,9 @@ import {
   RotateCw,
   Save,
   Search,
+  TrendingUp,
   Trash2,
+  UserCheck,
   Users,
   X,
 } from "lucide-react";
@@ -253,6 +257,36 @@ export default function AdminPage() {
         (sum, guest) => sum + (guest.access_count ?? 0),
         0,
       ),
+      opened: guests.filter(
+        (guest) => (guest.access_count ?? 0) > 0,
+      ).length,
+      unopened: guests.filter(
+        (guest) => (guest.access_count ?? 0) === 0,
+      ).length,
+      responseRate:
+        guests.length > 0
+          ? Math.round(
+              ((confirmed.length + declined.length) /
+                guests.length) *
+                100,
+            )
+          : 0,
+      confirmationRate:
+        guests.length > 0
+          ? Math.round(
+              (confirmed.length / guests.length) * 100,
+            )
+          : 0,
+      openRate:
+        guests.length > 0
+          ? Math.round(
+              (guests.filter(
+                (guest) => (guest.access_count ?? 0) > 0,
+              ).length /
+                guests.length) *
+                100,
+            )
+          : 0,
     };
   }, [rows, guests]);
 
@@ -1007,27 +1041,211 @@ export default function AdminPage() {
           </div>
         </header>
 
-        <section className="mt-10 grid gap-5 sm:grid-cols-2 xl:grid-cols-7">
-          {[
-            ["Invitații", statistics.invitations],
-            ["Confirmări", statistics.confirmed],
-            ["Refuzuri", statistics.declined],
-            ["În așteptare", statistics.waiting],
-            ["Adulți", statistics.adults],
-            ["Copii", statistics.children],
-            ["Accesări", statistics.totalAccesses],
-          ].map(([label, value]) => (
-            <article
-              key={String(label)}
-              className="rounded-[28px] bg-white p-7 shadow-sm"
-            >
-              <p className="text-slate-500">{label}</p>
+        <section className="mt-10 grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
+          <article className="overflow-hidden rounded-[34px] bg-white shadow-sm">
+            <div className="border-b border-slate-100 p-7 sm:p-9">
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.32em] text-[#a88d5d]">
+                    Situație generală
+                  </p>
 
-              <p className="mt-3 text-4xl font-semibold text-[#263746]">
-                {value}
-              </p>
+                  <h2 className="mt-3 text-3xl font-semibold text-[#263746] sm:text-4xl">
+                    Confirmările invitaților
+                  </h2>
+                </div>
+
+                <div className="flex h-24 w-24 shrink-0 items-center justify-center rounded-full border-[8px] border-[#e8d5ae] bg-[#faf7f1] shadow-inner">
+                  <div className="text-center">
+                    <p className="text-2xl font-bold text-[#263746]">
+                      {statistics.confirmationRate}%
+                    </p>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+                      confirmați
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-8">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-[#263746]">
+                    Progres confirmări
+                  </span>
+
+                  <span className="text-slate-500">
+                    {statistics.confirmed} din{" "}
+                    {statistics.invitations}
+                  </span>
+                </div>
+
+                <div className="mt-3 h-3 overflow-hidden rounded-full bg-[#eee8dc]">
+                  <div
+                    className="h-full rounded-full bg-[#a88d5d] transition-all duration-700"
+                    style={{
+                      width: `${Math.min(
+                        statistics.confirmationRate,
+                        100,
+                      )}%`,
+                    }}
+                  />
+                </div>
+
+                <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-slate-500">
+                  <span>
+                    Răspunsuri primite:{" "}
+                    <strong className="text-[#263746]">
+                      {statistics.responseRate}%
+                    </strong>
+                  </span>
+
+                  <span>
+                    Invitații deschise:{" "}
+                    <strong className="text-[#263746]">
+                      {statistics.openRate}%
+                    </strong>
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-px bg-slate-100 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                {
+                  label: "Invitații",
+                  value: statistics.invitations,
+                  icon: Users,
+                  note: "linkuri create",
+                },
+                {
+                  label: "Confirmări",
+                  value: statistics.confirmed,
+                  icon: UserCheck,
+                  note: "participă",
+                },
+                {
+                  label: "Refuzuri",
+                  value: statistics.declined,
+                  icon: X,
+                  note: "nu participă",
+                },
+                {
+                  label: "În așteptare",
+                  value: statistics.waiting,
+                  icon: Clock3,
+                  note: "fără răspuns",
+                },
+              ].map(({ label, value, icon: Icon, note }) => (
+                <div
+                  key={label}
+                  className="bg-white p-6"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#f7f4ee] text-[#a88d5d]">
+                      <Icon size={20} />
+                    </div>
+
+                    <span className="text-3xl font-semibold text-[#263746]">
+                      {value}
+                    </span>
+                  </div>
+
+                  <p className="mt-4 font-semibold text-[#263746]">
+                    {label}
+                  </p>
+
+                  <p className="mt-1 text-sm text-slate-500">
+                    {note}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </article>
+
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-1">
+            <article className="rounded-[30px] bg-[#263746] p-7 text-white shadow-sm">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm text-white/65">
+                    Accesări totale
+                  </p>
+
+                  <p className="mt-3 text-5xl font-semibold">
+                    {statistics.totalAccesses}
+                  </p>
+                </div>
+
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-white/10">
+                  <TrendingUp size={23} />
+                </div>
+              </div>
+
+              <div className="mt-7 grid grid-cols-2 gap-3">
+                <div className="rounded-2xl bg-white/10 p-4">
+                  <MailOpen size={19} className="text-[#e8d5ae]" />
+
+                  <p className="mt-3 text-2xl font-semibold">
+                    {statistics.opened}
+                  </p>
+
+                  <p className="mt-1 text-xs text-white/65">
+                    invitații deschise
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-white/10 p-4">
+                  <MailQuestion
+                    size={19}
+                    className="text-[#e8d5ae]"
+                  />
+
+                  <p className="mt-3 text-2xl font-semibold">
+                    {statistics.unopened}
+                  </p>
+
+                  <p className="mt-1 text-xs text-white/65">
+                    încă nedeschise
+                  </p>
+                </div>
+              </div>
             </article>
-          ))}
+
+            <article className="rounded-[30px] bg-white p-7 shadow-sm">
+              <p className="text-sm text-slate-500">
+                Participanți confirmați
+              </p>
+
+              <div className="mt-5 grid grid-cols-2 gap-4">
+                <div className="rounded-2xl bg-[#f7f4ee] p-5">
+                  <p className="text-4xl font-semibold text-[#263746]">
+                    {statistics.adults}
+                  </p>
+
+                  <p className="mt-2 text-sm text-slate-500">
+                    Adulți
+                  </p>
+                </div>
+
+                <div className="rounded-2xl bg-[#f7f4ee] p-5">
+                  <p className="text-4xl font-semibold text-[#263746]">
+                    {statistics.children}
+                  </p>
+
+                  <p className="mt-2 text-sm text-slate-500">
+                    Copii
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 rounded-2xl border border-[#e8d5ae] bg-[#fffdf9] p-4 text-sm text-[#6f542c]">
+                Total persoane confirmate:{" "}
+                <strong>
+                  {statistics.adults +
+                    statistics.children}
+                </strong>
+              </div>
+            </article>
+          </div>
         </section>
 
         <section className="mt-10 overflow-hidden rounded-[30px] bg-white shadow-sm">
