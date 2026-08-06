@@ -64,6 +64,26 @@ export default function Home() {
       }
 
       setAccessStatus("allowed");
+
+      const accessKey = `invitation-open-recorded:${slug}`;
+
+      if (!window.sessionStorage.getItem(accessKey)) {
+        const { error: recordError } = await supabase.rpc(
+          "record_invitation_open",
+          {
+            guest_slug: slug,
+          },
+        );
+
+        if (recordError) {
+          console.error(
+            "Accesarea invitației nu a putut fi înregistrată:",
+            recordError,
+          );
+        } else {
+          window.sessionStorage.setItem(accessKey, "true");
+        }
+      }
     }
 
     verifyInvitation();
