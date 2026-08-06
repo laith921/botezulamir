@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { Heart } from "lucide-react";
+import { ArrowUp, Heart } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -67,7 +67,7 @@ export default function Footer() {
           Arad
         </p>
 
-        <button
+        <motion.button
           type="button"
           onClick={() =>
             document
@@ -77,10 +77,27 @@ export default function Footer() {
                 block: "start",
               })
           }
-          className="mt-8 appearance-none border-0 bg-transparent text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8d7852] transition duration-300 hover:text-[#263746] sm:mt-10 sm:text-[11px] sm:tracking-[0.28em]"
+          animate={{
+            opacity: [0.55, 1, 0.55],
+            y: [0, -3, 0],
+          }}
+          transition={{
+            duration: 2.2,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="mx-auto mt-8 flex appearance-none flex-col items-center border-0 bg-transparent text-[#8d7852] transition duration-300 hover:text-[#263746] sm:mt-10"
         >
-          Înapoi la început ↑
-        </button>
+          <span className="text-[10px] font-semibold uppercase tracking-[0.24em] sm:text-[11px] sm:tracking-[0.28em]">
+            Înapoi la început
+          </span>
+
+          <ArrowUp
+            size={18}
+            strokeWidth={1.8}
+            className="mt-1"
+          />
+        </motion.button>
       </motion.div>
     </footer>
   );
