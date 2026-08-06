@@ -16,6 +16,7 @@ export default function Header() {
     };
 
     handleScroll();
+
     window.addEventListener("scroll", handleScroll, {
       passive: true,
     });
@@ -40,13 +41,13 @@ export default function Header() {
     <header
       className={`fixed inset-x-0 top-0 z-50 hidden transition-all duration-500 lg:block ${
         solid
-          ? "border-b border-white/55 bg-white/72 shadow-[0_10px_34px_rgba(38,55,70,0.07)] backdrop-blur-xl"
+          ? "bg-white/25 shadow-[0_8px_28px_rgba(38,55,70,0.05)] backdrop-blur-md"
           : "bg-transparent"
       }`}
     >
       <div
         className={`mx-auto flex max-w-7xl items-center justify-center px-7 transition-all duration-500 ${
-          solid ? "py-3" : "py-4"
+          solid ? "py-2.5" : "py-4"
         }`}
       >
         <nav className="flex items-center gap-9">
@@ -70,7 +71,7 @@ export default function Header() {
               WebkitAppearance: "none",
               appearance: "none",
             }}
-            className="ml-1 inline-flex items-center justify-center rounded-full border border-[#c9a86a] bg-[#e8d5ae] px-6 py-2.5 text-sm font-semibold shadow-[0_12px_30px_rgba(201,168,106,0.20)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#dcc18d] hover:shadow-[0_14px_34px_rgba(201,168,106,0.26)] active:scale-[0.98]"
+            className="ml-1 inline-flex items-center justify-center rounded-full border border-[#c9a86a] bg-[#e8d5ae]/90 px-6 py-2.5 text-sm font-semibold shadow-[0_10px_25px_rgba(201,168,106,0.18)] transition duration-300 hover:-translate-y-0.5 hover:bg-[#dcc18d] active:scale-[0.98]"
           >
             Confirmă prezența
           </button>
