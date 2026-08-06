@@ -12,12 +12,13 @@ import {
   Check,
   Copy,
   Download,
-  Link2,
+  Eye,
   LogOut,
   MessageCircle,
   Pencil,
   Plus,
   RefreshCw,
+  RotateCw,
   Save,
   Search,
   Trash2,
@@ -76,6 +77,26 @@ function createSlug(value: string) {
     .trim()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
+}
+
+function createRandomSuffix(length = 6) {
+  const characters = "abcdefghjkmnpqrstuvwxyz23456789";
+  const values = new Uint32Array(length);
+
+  if (
+    typeof window !== "undefined" &&
+    window.crypto?.getRandomValues
+  ) {
+    window.crypto.getRandomValues(values);
+
+    return Array.from(values, (value) =>
+      characters.charAt(value % characters.length),
+    ).join("");
+  }
+
+  return Math.random()
+    .toString(36)
+    .slice(2, 2 + length);
 }
 
 export default function AdminPage() {
@@ -520,6 +541,68 @@ export default function AdminPage() {
     window.setTimeout(() => {
       setCopiedGuestId(null);
     }, 1800);
+  }
+
+  async function handleRegenerateGuestLink(
+    guest: GuestRow,
+  ) {
+    const confirmed = window.confirm(
+      `Generezi un link nou pentru „${guest.display_name}”? Linkul vechi nu va mai deschide invitația.`,
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    setActionLoadingId(guest.id);
+    setError("");
+    setSuccess("");
+
+    const baseSlug =
+      createSlug(guest.display_name) || "invitat";
+    const newSlug = `${baseSlug}-${createRandomSuffix()}`;
+
+    const { error: guestUpdateError } = await supabase
+      .from("guests")
+      .update({
+        slug: newSlug,
+      })
+      .eq("id", guest.id);
+
+    if (guestUpdateError) {
+      console.error(
+        "Eroare regenerare link invitație:",
+        guestUpdateError,
+      );
+      setError("Linkul nou nu a putut fi generat.");
+      setActionLoadingId(null);
+      return;
+    }
+
+    const associatedResponse = findGuestRSVP(guest);
+
+    if (associatedResponse) {
+      const { error: rsvpUpdateError } = await supabase
+        .from("rsvp")
+        .update({
+          guest_slug: newSlug,
+        })
+        .eq("id", associatedResponse.id);
+
+      if (rsvpUpdateError) {
+        console.error(
+          "Eroare actualizare link în RSVP:",
+          rsvpUpdateError,
+        );
+      }
+    }
+
+    setSuccess(
+      "Linkul a fost regenerat. Copiază și trimite noul link invitatului.",
+    );
+    setActionLoadingId(null);
+
+    await loadData();
   }
 
   function createWhatsAppLink(guest: GuestRow) {
@@ -1155,10 +1238,36 @@ export default function AdminPage() {
                                   href={`/?inv=${guest.slug}`}
                                   target="_blank"
                                   rel="noreferrer"
-                                  className="inline-flex items-center justify-center rounded-full border border-slate-200 p-2.5 text-slate-600"
+                                  className="inline-flex items-center justify-center rounded-full border border-sky-100 p-2.5 text-sky-700"
+                                  title="Vezi invitația"
                                 >
-                                  <Link2 size={17} />
+                                  <Eye size={17} />
                                 </a>
+
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    handleRegenerateGuestLink(
+                                      guest,
+                                    )
+                                  }
+                                  disabled={
+                                    actionLoadingId ===
+                                    guest.id
+                                  }
+                                  className="inline-flex items-center justify-center rounded-full border border-violet-100 p-2.5 text-violet-700 disabled:opacity-60"
+                                  title="Generează un link nou"
+                                >
+                                  <RotateCw
+                                    size={17}
+                                    className={
+                                      actionLoadingId ===
+                                      guest.id
+                                        ? "animate-spin"
+                                        : ""
+                                    }
+                                  />
+                                </button>
 
                                 <button
                                   type="button"
