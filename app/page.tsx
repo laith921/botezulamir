@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
-import { LockKeyhole } from "lucide-react";
+import {
+  Heart,
+  LockKeyhole,
+  Sparkles,
+} from "lucide-react";
 
 import BackgroundEffects from "@/components/layout/BackgroundEffects";
 import Header from "@/components/layout/Header";
@@ -117,20 +121,125 @@ export default function Home() {
 
         <div className="fixed inset-0 -z-10 bg-white/10" />
 
-        <motion.p
-          initial={{ opacity: 0 }}
+        <motion.section
+          initial={{
+            opacity: 0,
+            y: 18,
+            scale: 0.98,
+          }}
           animate={{
-            opacity: [0.45, 1, 0.45],
+            opacity: 1,
+            y: 0,
+            scale: 1,
           }}
           transition={{
-            duration: 1.8,
-            repeat: Infinity,
-            ease: "easeInOut",
+            duration: 0.75,
+            ease: [0.22, 1, 0.36, 1],
           }}
-          className="text-center text-sm font-semibold uppercase tracking-[0.28em] text-[#8d7852]"
+          className="mx-auto w-full max-w-md text-center"
         >
-          Se verifică invitația
-        </motion.p>
+          <motion.div
+            animate={{
+              y: [0, -5, 0],
+            }}
+            transition={{
+              duration: 2.4,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="relative mx-auto flex h-24 w-24 items-center justify-center"
+          >
+            <motion.div
+              animate={{
+                rotate: 360,
+              }}
+              transition={{
+                duration: 10,
+                repeat: Infinity,
+                ease: "linear",
+              }}
+              className="absolute inset-0 rounded-full border border-[#c9a86a]/40 border-t-[#a88d5d]"
+            />
+
+            <motion.div
+              animate={{
+                scale: [1, 1.06, 1],
+                opacity: [0.82, 1, 0.82],
+              }}
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="flex h-16 w-16 items-center justify-center rounded-full border border-white/75 bg-white/55 text-[#a88d5d] shadow-[0_18px_50px_rgba(38,55,70,0.10)] backdrop-blur-md"
+            >
+              <Heart
+                size={28}
+                strokeWidth={1.6}
+                fill="currentColor"
+              />
+            </motion.div>
+
+            <motion.div
+              animate={{
+                opacity: [0.25, 1, 0.25],
+                scale: [0.85, 1.1, 0.85],
+              }}
+              transition={{
+                duration: 1.8,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+              className="absolute -right-1 top-2 text-[#c9a86a]"
+            >
+              <Sparkles size={18} strokeWidth={1.6} />
+            </motion.div>
+          </motion.div>
+
+          <p className="mt-7 text-[10px] font-semibold uppercase tracking-[0.34em] text-[#9b7c45] sm:text-xs">
+            Botezul lui Amir
+          </p>
+
+          <motion.h1
+            animate={{
+              opacity: [0.55, 1, 0.55],
+            }}
+            transition={{
+              duration: 1.8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="mt-3 font-serif text-3xl text-[#263746] sm:text-4xl"
+          >
+            Se verifică invitația
+          </motion.h1>
+
+          <div className="mx-auto mt-5 h-px w-24 bg-gradient-to-r from-transparent via-[#b99a63] to-transparent" />
+
+          <p className="mx-auto mt-5 max-w-sm text-sm leading-6 text-[#56616a]">
+            Pregătim invitația personalizată pentru
+            dumneavoastră.
+          </p>
+
+          <div className="mx-auto mt-7 flex w-28 items-center justify-center gap-2">
+            {[0, 1, 2].map((item) => (
+              <motion.span
+                key={item}
+                animate={{
+                  opacity: [0.25, 1, 0.25],
+                  scale: [0.8, 1.15, 0.8],
+                }}
+                transition={{
+                  duration: 1.2,
+                  repeat: Infinity,
+                  delay: item * 0.18,
+                  ease: "easeInOut",
+                }}
+                className="h-2 w-2 rounded-full bg-[#a88d5d]"
+              />
+            ))}
+          </div>
+        </motion.section>
       </main>
     );
   }
