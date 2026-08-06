@@ -532,7 +532,7 @@ export default function RSVP() {
             </p>
           </form>
         )}
-      </motion.div>
+            </motion.div>
     </section>
   );
 }
