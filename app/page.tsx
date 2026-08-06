@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 
 import BackgroundEffects from "@/components/layout/BackgroundEffects";
-import Header from "@/components/layout/Header";
+
 import OpeningAnimation from "@/components/layout/OpeningAnimation";
 
 import Countdown from "@/components/sections/Countdown";
@@ -346,7 +346,7 @@ export default function Home() {
     <main className="relative isolate overflow-hidden">
       <OpeningAnimation />
       <BackgroundEffects />
-      <Header />
+      
 
       <div className="relative z-10">
         <Hero />
