@@ -1,3 +1,9 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { motion } from "motion/react";
+import { LockKeyhole } from "lucide-react";
+
 import BackgroundEffects from "@/components/layout/BackgroundEffects";
 import Header from "@/components/layout/Header";
 import OpeningAnimation from "@/components/layout/OpeningAnimation";
@@ -8,7 +14,204 @@ import Footer from "@/components/sections/Footer";
 import Hero from "@/components/sections/Hero";
 import RSVP from "@/components/sections/RSVP";
 
+import { supabase } from "@/lib/supabase";
+
+type AccessStatus =
+  | "checking"
+  | "allowed"
+  | "restricted";
+
 export default function Home() {
+  const [accessStatus, setAccessStatus] =
+    useState<AccessStatus>("checking");
+
+  useEffect(() => {
+    let active = true;
+
+    async function verifyInvitation() {
+      const params = new URLSearchParams(
+        window.location.search,
+      );
+
+      const slug = params.get("inv")?.trim();
+
+      if (!slug) {
+        if (active) {
+          setAccessStatus("restricted");
+        }
+
+        return;
+      }
+
+      const { data, error } = await supabase.rpc(
+        "get_guest_by_slug",
+        {
+          guest_slug: slug,
+        },
+      );
+
+      if (!active) {
+        return;
+      }
+
+      if (
+        error ||
+        !data ||
+        data.length === 0
+      ) {
+        setAccessStatus("restricted");
+        return;
+      }
+
+      setAccessStatus("allowed");
+    }
+
+    verifyInvitation();
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  if (accessStatus === "checking") {
+    return (
+      <main className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-6">
+        <div
+          aria-hidden="true"
+          style={{
+            backgroundImage:
+              "url('/images/hero-background-mobile.png')",
+          }}
+          className="fixed inset-0 -z-20 bg-cover bg-center bg-no-repeat sm:hidden"
+        />
+
+        <div
+          aria-hidden="true"
+          style={{
+            backgroundImage:
+              "url('/images/hero-background.png')",
+          }}
+          className="fixed inset-0 -z-20 hidden bg-cover bg-center bg-no-repeat sm:block"
+        />
+
+        <div className="fixed inset-0 -z-10 bg-white/10" />
+
+        <motion.p
+          initial={{ opacity: 0 }}
+          animate={{
+            opacity: [0.45, 1, 0.45],
+          }}
+          transition={{
+            duration: 1.8,
+            repeat: Infinity,
+            ease: "easeInOut",
+          }}
+          className="text-center text-sm font-semibold uppercase tracking-[0.28em] text-[#8d7852]"
+        >
+          Se verifică invitația
+        </motion.p>
+      </main>
+    );
+  }
+
+  if (accessStatus === "restricted") {
+    return (
+      <main className="relative flex min-h-[100svh] items-center justify-center overflow-hidden px-6 py-12">
+        <div
+          aria-hidden="true"
+          style={{
+            backgroundImage:
+              "url('/images/hero-background-mobile.png')",
+          }}
+          className="fixed inset-0 -z-20 bg-cover bg-center bg-no-repeat sm:hidden"
+        />
+
+        <div
+          aria-hidden="true"
+          style={{
+            backgroundImage:
+              "url('/images/hero-background.png')",
+          }}
+          className="fixed inset-0 -z-20 hidden bg-cover bg-center bg-no-repeat sm:block"
+        />
+
+        <div className="fixed inset-0 -z-10 bg-white/10" />
+
+        <motion.section
+          initial={{
+            opacity: 0,
+            y: 24,
+            scale: 0.98,
+          }}
+          animate={{
+            opacity: 1,
+            y: 0,
+            scale: 1,
+          }}
+          transition={{
+            duration: 0.85,
+            ease: [0.22, 1, 0.36, 1],
+          }}
+          className="mx-auto w-full max-w-2xl text-center"
+        >
+          <motion.div
+            initial={{
+              opacity: 0,
+              scale: 0.8,
+            }}
+            animate={{
+              opacity: 1,
+              scale: 1,
+            }}
+            transition={{
+              duration: 0.6,
+              delay: 0.1,
+            }}
+            className="mx-auto flex h-14 w-14 items-center justify-center rounded-full border border-white/70 bg-white/55 text-[#a88d5d] shadow-[0_16px_40px_rgba(38,55,70,0.10)] backdrop-blur-sm"
+          >
+            <LockKeyhole size={25} strokeWidth={1.7} />
+          </motion.div>
+
+          <p className="mt-7 text-[10px] font-semibold uppercase tracking-[0.38em] text-[#9b7c45] sm:text-sm">
+            Invitație privată
+          </p>
+
+          <h1 className="mt-4 font-serif text-[48px] font-semibold leading-tight text-[#263746] drop-shadow-[0_3px_12px_rgba(255,255,255,0.85)] sm:mt-6 sm:text-7xl">
+            Botezul lui Amir
+          </h1>
+
+          <div className="mx-auto mt-6 h-px w-24 bg-gradient-to-r from-transparent via-[#b99a63] to-transparent sm:mt-8 sm:w-32" />
+
+          <div className="mx-auto mt-7 max-w-lg space-y-5 text-[15px] leading-7 text-[#39434a] drop-shadow-[0_1px_8px_rgba(255,255,255,0.95)] sm:mt-9 sm:text-lg sm:leading-8">
+            <p>
+              Această pagină este rezervată invitaților
+              noștri.
+            </p>
+
+            <p>
+              Dacă ați primit o invitație, vă rugăm să
+              folosiți linkul personalizat primit în mesaj
+              pentru a o deschide.
+            </p>
+          </div>
+
+          <div className="mx-auto mt-8 flex max-w-[250px] items-center justify-center gap-3 sm:mt-10">
+            <span className="h-px flex-1 bg-gradient-to-r from-transparent to-[#c9a86a]/55" />
+
+            <span
+              aria-hidden="true"
+              className="text-[#b99a63]"
+            >
+              ✦
+            </span>
+
+            <span className="h-px flex-1 bg-gradient-to-l from-transparent to-[#c9a86a]/55" />
+          </div>
+        </motion.section>
+      </main>
+    );
+  }
+
   return (
     <main className="relative isolate overflow-hidden">
       <OpeningAnimation />
