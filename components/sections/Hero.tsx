@@ -78,8 +78,13 @@ export default function Hero() {
         style={{
           backgroundImage:
             "url('/images/hero-background-mobile.png')",
+          backgroundPosition: "center center",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          WebkitTransform: "translate3d(0,0,0)",
+          transform: "translate3d(0,0,0)",
         }}
-        className="pointer-events-none fixed inset-0 -z-20 bg-cover bg-center bg-no-repeat sm:hidden"
+        className="pointer-events-none fixed left-0 top-0 -z-20 h-[100lvh] w-screen sm:hidden"
       />
 
       <div
@@ -87,11 +92,16 @@ export default function Hero() {
         style={{
           backgroundImage:
             "url('/images/hero-background.png')",
+          backgroundPosition: "center center",
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+          WebkitTransform: "translate3d(0,0,0)",
+          transform: "translate3d(0,0,0)",
         }}
-        className="pointer-events-none fixed inset-0 -z-20 hidden bg-cover bg-center bg-no-repeat sm:block"
+        className="pointer-events-none fixed left-0 top-0 -z-20 hidden h-screen w-screen sm:block"
       />
 
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-transparent sm:bg-white/10" />
+      <div className="pointer-events-none fixed left-0 top-0 -z-10 h-[100lvh] w-screen bg-transparent sm:h-screen sm:bg-white/10" />
 
       <motion.div
         initial={{ opacity: 0, y: 20 }}
@@ -134,7 +144,9 @@ export default function Hero() {
               size={16}
               className="shrink-0 text-[#a88d5d] sm:h-[18px] sm:w-[18px]"
             />
-            <span className="whitespace-nowrap">2 oct. 2026</span>
+            <span className="whitespace-nowrap">
+              2 oct. 2026
+            </span>
           </div>
 
           <div className="flex min-w-0 items-center justify-center gap-2 rounded-full border border-white/70 bg-white/65 px-3 py-3 shadow-sm backdrop-blur-[3px] sm:px-5">
@@ -151,7 +163,9 @@ export default function Hero() {
             role="button"
             tabIndex={0}
             onClick={() => scrollToSection("rsvp")}
-            onKeyDown={(event) => handleKeyboard(event, "rsvp")}
+            onKeyDown={(event) =>
+              handleKeyboard(event, "rsvp")
+            }
             className="flex w-full cursor-pointer select-none items-center justify-center rounded-full border border-[#c9a86a] bg-[#e8d5ae] px-7 py-3.5 shadow-[0_14px_34px_rgba(201,168,106,0.25)] transition duration-300 active:scale-[0.98] sm:w-auto sm:px-10 sm:py-4 sm:hover:-translate-y-1 sm:hover:bg-[#dcc18d]"
           >
             <span
