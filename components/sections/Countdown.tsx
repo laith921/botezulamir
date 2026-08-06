@@ -3,7 +3,9 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 
-const eventDate = new Date("2026-10-02T16:00:00+03:00").getTime();
+const eventDate = new Date(
+  "2026-10-02T16:00:00+03:00",
+).getTime();
 
 type TimeLeft = {
   days: number;
@@ -23,7 +25,9 @@ function calculateTimeLeft(): TimeLeft {
   const difference = Math.max(eventDate - Date.now(), 0);
 
   return {
-    days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+    days: Math.floor(
+      difference / (1000 * 60 * 60 * 24),
+    ),
     hours: Math.floor(
       (difference / (1000 * 60 * 60)) % 24,
     ),
@@ -52,7 +56,7 @@ export default function Countdown() {
   return (
     <section
       id="countdown"
-      className="relative px-5 py-10 sm:px-6 sm:py-24"
+      className="relative px-5 py-12 sm:px-6 sm:py-24"
     >
       <motion.div
         initial={{
@@ -65,7 +69,7 @@ export default function Countdown() {
         }}
         viewport={{
           once: true,
-          amount: 0.25,
+          amount: 0.2,
         }}
         transition={{
           duration: 0.75,
@@ -73,7 +77,7 @@ export default function Countdown() {
         }}
         className="mx-auto max-w-5xl text-center"
       >
-        <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-[#9b7c45] sm:text-sm">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.34em] text-[#9b7c45] sm:text-sm">
           Până la ziua cea mare
         </p>
 
@@ -83,54 +87,59 @@ export default function Countdown() {
 
         <div className="mx-auto mt-5 h-px w-20 bg-[#b99a63] sm:mt-6 sm:w-24" />
 
-        <div className="mx-auto mt-8 grid max-w-xl grid-cols-4 gap-1 sm:mt-14 sm:gap-8">
-          {countdownItems.map(({ key, label }, index) => (
-            <motion.div
-              key={key}
-              initial={{
-                opacity: 0,
-                y: 10,
-              }}
-              whileInView={{
-                opacity: 1,
-                y: 0,
-              }}
-              viewport={{
-                once: true,
-              }}
-              transition={{
-                duration: 0.5,
-                delay: index * 0.08,
-              }}
-              className="relative min-w-0 px-0.5 py-2 sm:px-1"
-            >
-              <motion.p
-                key={timeLeft[key]}
+        <div className="mx-auto mt-8 grid max-w-md grid-cols-4 gap-2 sm:mt-14 sm:max-w-2xl sm:gap-5">
+          {countdownItems.map(
+            ({ key, label }, index) => (
+              <motion.div
+                key={key}
                 initial={{
-                  opacity: 0.45,
-                  y: 4,
+                  opacity: 0,
+                  y: 12,
                 }}
-                animate={{
+                whileInView={{
                   opacity: 1,
                   y: 0,
                 }}
-                transition={{
-                  duration: 0.22,
+                viewport={{
+                  once: true,
                 }}
-                className="font-serif text-[30px] font-semibold tabular-nums leading-none text-[#263746] drop-shadow-[0_1px_7px_rgba(255,255,255,0.9)] sm:text-5xl"
+                transition={{
+                  duration: 0.5,
+                  delay: index * 0.08,
+                }}
+                className="relative min-w-0"
               >
-                {String(timeLeft[key]).padStart(2, "0")}
-              </motion.p>
+                <div className="flex min-h-[78px] flex-col items-center justify-center rounded-[20px] border border-white/65 bg-white/38 px-1.5 py-3 shadow-[0_10px_28px_rgba(38,55,70,0.06)] backdrop-blur-sm sm:min-h-[118px] sm:rounded-[26px] sm:px-4 sm:py-5">
+                  <motion.p
+                    key={timeLeft[key]}
+                    initial={{
+                      opacity: 0.45,
+                      y: 4,
+                      scale: 0.97,
+                    }}
+                    animate={{
+                      opacity: 1,
+                      y: 0,
+                      scale: 1,
+                    }}
+                    transition={{
+                      duration: 0.24,
+                    }}
+                    className="font-serif text-[28px] font-semibold tabular-nums leading-none text-[#263746] drop-shadow-[0_1px_7px_rgba(255,255,255,0.9)] sm:text-5xl"
+                  >
+                    {String(timeLeft[key]).padStart(
+                      2,
+                      "0",
+                    )}
+                  </motion.p>
 
-              <p className="mt-2 text-[8px] font-semibold uppercase tracking-[0.1em] text-[#9b7c45] sm:mt-3 sm:text-xs sm:tracking-[0.26em]">
-                {label}
-              </p>
-
-              {index !== countdownItems.length - 1 && (
-                <span className="absolute right-0 top-1/2 h-7 w-px -translate-y-1/2 bg-[#c9a86a]/25 sm:right-[-5px] sm:h-8 sm:bg-[#c9a86a]/35" />
-              )}
-            </motion.div>
-          ))}
+                  <p className="mt-2 text-[8px] font-semibold uppercase tracking-[0.08em] text-[#9b7c45] sm:mt-3 sm:text-xs sm:tracking-[0.2em]">
+                    {label}
+                  </p>
+                </div>
+              </motion.div>
+            ),
+          )}
         </div>
 
         <div className="mx-auto mt-7 flex max-w-[280px] items-center justify-center gap-3 sm:mt-11 sm:max-w-sm">
