@@ -1,11 +1,7 @@
 "use client";
 
 import { KeyboardEvent, useEffect, useState } from "react";
-import {
-  motion,
-  useScroll,
-  useTransform,
-} from "motion/react";
+import { motion } from "motion/react";
 import {
   CalendarDays,
   ChevronDown,
@@ -23,12 +19,6 @@ type GuestData = {
 export default function Hero() {
   const [guest, setGuest] = useState<GuestData | null>(null);
   const [loadingGuest, setLoadingGuest] = useState(true);
-
-  const { scrollY } = useScroll();
-
-  const backgroundY = useTransform(scrollY, [0, 1200], [0, 34]);
-  const backgroundScale = useTransform(scrollY, [0, 1200], [1, 1.02]);
-  const backgroundOpacity = useTransform(scrollY, [0, 1400], [1, 0.9]);
 
   useEffect(() => {
     async function loadGuest() {
@@ -83,24 +73,18 @@ export default function Hero() {
       id="hero"
       className="relative flex min-h-[78svh] items-center justify-center overflow-hidden px-5 pb-8 pt-10 sm:min-h-screen sm:px-6 sm:py-24"
     >
-      <motion.div
+      <div
         aria-hidden="true"
         style={{
-          y: backgroundY,
-          scale: backgroundScale,
-          opacity: backgroundOpacity,
           backgroundImage:
             "url('/images/hero-background-mobile.png')",
         }}
         className="pointer-events-none fixed inset-0 -z-20 bg-cover bg-center bg-no-repeat sm:hidden"
       />
 
-      <motion.div
+      <div
         aria-hidden="true"
         style={{
-          y: backgroundY,
-          scale: backgroundScale,
-          opacity: backgroundOpacity,
           backgroundImage:
             "url('/images/hero-background.png')",
         }}
