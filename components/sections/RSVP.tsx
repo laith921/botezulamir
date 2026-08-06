@@ -3,7 +3,7 @@
 import { FormEvent, useEffect, useState } from "react";
 import {
   AlertCircle,
-  ChevronDown,
+  Check,
   Heart,
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -382,48 +382,49 @@ export default function RSVP() {
               />
             </div>
 
-            <div>
-              <label
-                htmlFor="attendance"
-                className={labelClass}
-              >
+            <fieldset>
+              <legend className={labelClass}>
                 Participare
-              </label>
+              </legend>
 
-              <div className="relative">
-                <select
-                  id="attendance"
-                  name="attendance"
-                  defaultValue="yes"
-                  className={`${inputClass} cursor-pointer pr-10`}
-                  style={{
-                    colorScheme: "light",
-                    color: "#000000",
-                    WebkitTextFillColor: "#000000",
-                  }}
-                >
-                  <option
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="group relative cursor-pointer">
+                  <input
+                    type="radio"
+                    name="attendance"
                     value="yes"
-                    style={{ color: "#000000" }}
-                  >
-                    Participăm cu drag
-                  </option>
+                    defaultChecked
+                    className="peer sr-only"
+                  />
 
-                  <option
+                  <span className="flex min-h-[92px] items-center justify-center rounded-[22px] border border-[#c9a86a]/55 bg-white/45 px-5 py-4 text-center shadow-[0_10px_28px_rgba(38,55,70,0.06)] backdrop-blur-sm transition duration-300 active:scale-[0.98] peer-checked:border-[#a88d5d] peer-checked:bg-[#e8d5ae]/90 peer-checked:shadow-[0_14px_34px_rgba(201,168,106,0.20)] sm:group-hover:-translate-y-0.5">
+                    <span className="flex items-center justify-center gap-2 font-semibold text-[#263746]">
+                      <Check
+                        size={18}
+                        className="text-[#8d6f3e] opacity-0 transition peer-checked:opacity-100"
+                      />
+
+                      Participăm cu drag
+                    </span>
+                  </span>
+                </label>
+
+                <label className="group relative cursor-pointer">
+                  <input
+                    type="radio"
+                    name="attendance"
                     value="no"
-                    style={{ color: "#000000" }}
-                  >
-                    Nu putem participa
-                  </option>
-                </select>
+                    className="peer sr-only"
+                  />
 
-                <ChevronDown
-                  size={18}
-                  aria-hidden="true"
-                  className="pointer-events-none absolute right-1 top-1/2 -translate-y-1/2 text-[#6f542c]"
-                />
+                  <span className="flex min-h-[92px] items-center justify-center rounded-[22px] border border-[#c9a86a]/40 bg-white/35 px-5 py-4 text-center shadow-[0_10px_28px_rgba(38,55,70,0.05)] backdrop-blur-sm transition duration-300 active:scale-[0.98] peer-checked:border-[#a88d5d] peer-checked:bg-[#f0e7d5] peer-checked:shadow-[0_14px_34px_rgba(201,168,106,0.16)] sm:group-hover:-translate-y-0.5">
+                    <span className="font-semibold text-[#263746]">
+                      Nu putem participa
+                    </span>
+                  </span>
+                </label>
               </div>
-            </div>
+            </fieldset>
 
             <div className="grid grid-cols-2 gap-5 sm:gap-8">
               <div>
