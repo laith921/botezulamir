@@ -3,7 +3,6 @@
 import { FormEvent, useEffect, useState } from "react";
 import {
   AlertCircle,
-  Check,
   Heart,
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -387,8 +386,8 @@ export default function RSVP() {
                 Participare
               </legend>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="group relative cursor-pointer">
+              <div className="mx-auto grid max-w-md grid-cols-2 gap-3">
+                <label className="relative cursor-pointer">
                   <input
                     type="radio"
                     name="attendance"
@@ -397,19 +396,12 @@ export default function RSVP() {
                     className="peer sr-only"
                   />
 
-                  <span className="flex min-h-[92px] items-center justify-center rounded-[22px] border border-[#c9a86a]/55 bg-white/45 px-5 py-4 text-center shadow-[0_10px_28px_rgba(38,55,70,0.06)] backdrop-blur-sm transition duration-300 active:scale-[0.98] peer-checked:border-[#a88d5d] peer-checked:bg-[#e8d5ae]/90 peer-checked:shadow-[0_14px_34px_rgba(201,168,106,0.20)] sm:group-hover:-translate-y-0.5">
-                    <span className="flex items-center justify-center gap-2 font-semibold text-[#263746]">
-                      <Check
-                        size={18}
-                        className="text-[#8d6f3e] opacity-0 transition peer-checked:opacity-100"
-                      />
-
-                      Participăm cu drag
-                    </span>
+                  <span className="flex min-h-[52px] items-center justify-center rounded-full border border-[#c9a86a]/55 bg-white/40 px-3 py-2 text-center text-sm font-semibold leading-5 text-[#263746] shadow-[0_8px_20px_rgba(38,55,70,0.05)] transition duration-300 active:scale-[0.98] peer-checked:border-[#a88d5d] peer-checked:bg-[#e8d5ae]/85">
+                    Participăm cu drag
                   </span>
                 </label>
 
-                <label className="group relative cursor-pointer">
+                <label className="relative cursor-pointer">
                   <input
                     type="radio"
                     name="attendance"
@@ -417,10 +409,8 @@ export default function RSVP() {
                     className="peer sr-only"
                   />
 
-                  <span className="flex min-h-[92px] items-center justify-center rounded-[22px] border border-[#c9a86a]/40 bg-white/35 px-5 py-4 text-center shadow-[0_10px_28px_rgba(38,55,70,0.05)] backdrop-blur-sm transition duration-300 active:scale-[0.98] peer-checked:border-[#a88d5d] peer-checked:bg-[#f0e7d5] peer-checked:shadow-[0_14px_34px_rgba(201,168,106,0.16)] sm:group-hover:-translate-y-0.5">
-                    <span className="font-semibold text-[#263746]">
-                      Nu putem participa
-                    </span>
+                  <span className="flex min-h-[52px] items-center justify-center rounded-full border border-[#c9a86a]/40 bg-white/35 px-3 py-2 text-center text-sm font-semibold leading-5 text-[#263746] shadow-[0_8px_20px_rgba(38,55,70,0.04)] transition duration-300 active:scale-[0.98] peer-checked:border-[#a88d5d] peer-checked:bg-[#f0e7d5]">
+                    Nu participăm
                   </span>
                 </label>
               </div>
